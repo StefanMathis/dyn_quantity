@@ -9,7 +9,7 @@ See the docstring of that struct.
  */
 #[repr(C)]
 #[derive(Debug)]
-struct DynQuantityOkOrErr {
+pub struct DynQuantityOkOrErr {
     dyn_quantity: DynQuantity<Complex<f64>>,
     error_type: u8,
     span: [u32; 2],

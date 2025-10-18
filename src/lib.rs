@@ -8,4 +8,4 @@ pub mod uom_impl;
 #[cfg(feature = "serde")]
 pub mod deserialize_with;
 
-include!("../common/lib.rs");
+include!("../dyn_quantity_from_str/common/lib.rs");
