@@ -167,6 +167,8 @@ The [`deserialize_with`] module holds all available functions.
 
 # Architecture and building instructions
 
+## Overview
+
 At its core, this crate offers the following functionality via the
 [`DynQuantity`] struct:
 * Performing simple arithmetic operations on quantities where the units are
@@ -193,6 +195,10 @@ compile the parser into the final binary. The paragraphs below contain
 information for each building strategy so the dependent of this crate can choose
 its preferred model.
 
+## Shared source code
+
+In case the 
+
 ## Compiling parser and lexer directly into the final binary
 
 This is the "standard" Rust way of handling dependencies: Compile all the source
@@ -203,6 +209,8 @@ time.
 This compilation strategy can be enabled via the feature flag **no_static_lib**.
 
 ## Compiling parser and lexer into a separate static library
+
+REWRITE this
 
 This strategy works as follows:
 1) Check if there is already a static parser library available at the top

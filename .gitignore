@@ -1,5 +1,4 @@
 /target
-/dyn_quantity_from_str/
 /libdyn_quantity_from_str.a
 *.lock
 *.a

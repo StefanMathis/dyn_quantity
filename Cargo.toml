@@ -11,13 +11,14 @@ include = [
     "README.md",
     "/src",
     "/tests",
+    "/common",
     "build.rs",
-    "/dyn_quantity_from_str_template",
 ]
 
 [dependencies]
 uom = {version = "0.36", default-features = false, features = ["f64", "complex64", "si", "std", "serde"], optional = true}
 dyn_quantity_lexer = {version = "0.1", optional = true}
+# dyn_quantity_from_str = {version = "0.1"}
 serde = {version = "1", features = ["derive", "rc"], optional = true }
 deserialize_untagged_verbose_error = {version = "0.1", optional = true}
 num = {version = "0.4"}
