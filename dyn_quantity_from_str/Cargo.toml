@@ -6,6 +6,13 @@ description = "Static library builder for FromStr implementation of crate dyn_qu
 readme = "README.md"
 license  = "MIT OR Apache-2.0"
 repository = "https://github.com/StefanMathis/dyn_quantity.git"
+include = [
+    "Cargo.toml",
+    "README.md",
+    "/src",
+    "/tests",
+    "/../common",
+]
 
 [dependencies]
 dyn_quantity_lexer = {version = "0.1"}
