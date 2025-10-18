@@ -1,14 +1,15 @@
 #![doc = include_str!("../README.md")]
 
-pub mod from_str;
-
 #[cfg(feature = "uom")]
 pub mod uom_impl;
 
 #[cfg(feature = "serde")]
 pub mod deserialize_with;
 
-// Code shared between dyn_quantity and dyn_quantity_from_str
+// =============================================================================
+// From here, the code needs to be copied into dyn_quantity/dyn_quantity_from_str/src/lib.rs.
+
+pub mod from_str;
 
 use num::Complex;
 use num::complex::ComplexFloat;

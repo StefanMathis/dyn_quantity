@@ -1,4 +1,5 @@
-// Code shared between dyn_quantity and dyn_quantity_from_str
+// =============================================================================
+// From here, the code needs to be copied into dyn_quantity/dyn_quantity_from_str/src/from_str/from_str_impl.rs.
 
 use ::num::{Complex, Zero};
 use dyn_quantity_lexer::{Logos, Token};

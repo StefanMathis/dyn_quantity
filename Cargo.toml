@@ -28,4 +28,4 @@ indoc = "1.0"
 approx = "0.5.1"
 
 [build-dependencies]
-dyn_quantity_from_str = "0.1"
+dyn_quantity_from_str = "0.1.1"

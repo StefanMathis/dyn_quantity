@@ -1,3 +1,6 @@
+// =============================================================================
+// Code copied verbatim from dyn_quantity/src/from_str/from_str_impl.rs
+
 use ::num::{Complex, Zero};
 use dyn_quantity_lexer::{Logos, Token};
 use std::{

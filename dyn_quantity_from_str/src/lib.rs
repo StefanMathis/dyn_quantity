@@ -1,6 +1,5 @@
-pub mod from_str;
-
-// Code shared between dyn_quantity and dyn_quantity_from_str
+// =============================================================================
+// Code copied verbatim from dyn_quantity/src/lib.rs
 
 use num::Complex;
 use num::complex::ComplexFloat;
