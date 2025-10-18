@@ -90,11 +90,11 @@ fn inner() -> Result<(), Box<dyn Error>> {
 
         set_current_dir(ext_lib_crate_dir.as_path()).map_err(Box::new)?;
 
-        // Rename Cargo.toml_template to Cargo.toml
-        let src = "Cargo.toml_template";
+        // Rename Cargo.template to Cargo.toml
+        let src = "Cargo.template";
         let dst = "Cargo.toml";
         if !Path::new(dst).exists() {
-            fs::copy(src, dst).expect("Failed to copy Cargo.toml_template to Cargo.toml");
+            fs::copy(src, dst).expect("Failed to copy Cargo.template to Cargo.toml");
         }
 
         let _ = std::process::Command::new("cargo")
