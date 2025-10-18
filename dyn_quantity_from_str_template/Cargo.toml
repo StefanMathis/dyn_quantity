@@ -1,0 +1,15 @@
+[workspace]
+
+[package]
+name = "dyn_quantity_from_str"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+dyn_quantity_lexer = { path = "../dyn_quantity_lexer"}
+num = {version = "*"}
+
+[lib]
+name = "dyn_quantity_from_str"
+crate-type = ["staticlib"]
+bench = false

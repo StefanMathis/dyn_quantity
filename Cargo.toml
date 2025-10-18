@@ -1,0 +1,27 @@
+[package]
+name = "dyn_quantity"
+version = "0.1.0"
+edition = "2024"
+description = "Representing physical quantities dynamically (i.e. via values, not via the type system)"
+readme = "README.md"
+license  = "MIT OR Apache-2.0"
+repository = "https://github.com/StefanMathis/dyn_quantity.git"
+
+[dependencies]
+uom = {version = "0.36", default-features = false, features = ["f64", "complex64", "si", "std", "serde"], optional = true}
+dyn_quantity_lexer = { path = "dyn_quantity_lexer", optional = true}
+serde = {version = "1", features = ["derive", "rc"], optional = true }
+deserialize_untagged_verbose_error = {version = "0.1", optional = true}
+num = {version = "0.4"}
+
+[features]
+default = []
+uom = ["dep:uom"]
+serde = ["dep:serde", "dep:deserialize_untagged_verbose_error", "num/serde"]
+no_static_lib = ["dep:dyn_quantity_lexer"]
+
+[dev-dependencies]
+dyn_quantity = { path = ".", features = ["uom", "serde"] }
+serde_yaml = "0.8"
+indoc = "1.0"
+approx = "0.5.1"

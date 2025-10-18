@@ -1,0 +1,11 @@
+[package]
+name = "dyn_quantity_lexer"
+version = "0.1.0"
+edition = "2024"
+description = "Lexer for crate dyn_quantity"
+readme = "README.md"
+license  = "MIT OR Apache-2.0"
+repository = "https://github.com/StefanMathis/dyn_quantity.git"
+
+[dependencies]
+logos = {version = "0.14"}
