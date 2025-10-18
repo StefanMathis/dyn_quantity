@@ -1,6 +1,6 @@
 [package]
 name = "dyn_quantity_from_str"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2024"
 description = "Static library builder for FromStr implementation of crate dyn_quantity"
 readme = "README.md"
