@@ -9,10 +9,10 @@ repository = "https://github.com/StefanMathis/dyn_quantity.git"
 include = [
     "Cargo.toml",
     "README.md",
-    "src/**",
-    "tests/**",
+    "/src",
+    "/tests",
     "build.rs",
-    "dyn_quantity_from_str_template/**",
+    "/dyn_quantity_from_str_template",
 ]
 
 [dependencies]

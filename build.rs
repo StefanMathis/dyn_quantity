@@ -90,10 +90,19 @@ fn inner() -> Result<(), Box<dyn Error>> {
 
         set_current_dir(ext_lib_crate_dir.as_path()).map_err(Box::new)?;
 
-        let _ = std::process::Command::new("cargo")
+        // Rename Cargo.template to Cargo.toml
+        let src = "Cargo.template";
+        let dst = "Cargo.toml";
+        if !Path::new(dst).exists() {
+            fs::copy(src, dst).expect("Failed to copy Cargo.template to Cargo.toml");
+        }
+
+        if let Err(err) = std::process::Command::new("cargo")
             .args(["build", "--package", "dyn_quantity_from_str", "--release"])
             .output()
-            .map_err(Box::new)?;
+        {
+            panic!("{err}");
+        }
 
         // Move the library into the root directory of this crate
         let mut src = crate_dir.to_path_buf();
