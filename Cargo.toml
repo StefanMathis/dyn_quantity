@@ -1,11 +1,18 @@
 [package]
 name = "dyn_quantity"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 description = "Representing physical quantities dynamically (i.e. via values, not via the type system)"
 readme = "README.md"
 license  = "MIT OR Apache-2.0"
 repository = "https://github.com/StefanMathis/dyn_quantity.git"
+include = [
+    "Cargo.toml",
+    "README.md",
+    "src/**",
+    "tests/**",
+    "dyn_quantity_from_str_template/**",
+]
 
 [dependencies]
 uom = {version = "0.36", default-features = false, features = ["f64", "complex64", "si", "std", "serde"], optional = true}

@@ -105,17 +105,14 @@ fn inner() -> Result<(), Box<dyn Error>> {
         let mut dst = crate_dir.to_path_buf();
         dst.push(LIB_NAME);
 
-        println!("TEST1");
-
         fs::copy(src.as_path(), dst.as_path()).map_err(Box::new)?;
-
-        println!("TEST2");
 
         // Go back to the current working directory
         set_current_dir(current_dir.as_path()).map_err(Box::new)?;
 
         // Delete the entire ext_lib_crate
         fs::remove_dir_all(ext_lib_crate_dir.as_path()).map_err(Box::new)?;
+
         return Ok(());
     }
 
