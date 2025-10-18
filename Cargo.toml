@@ -6,21 +6,13 @@ description = "Representing physical quantities dynamically (i.e. via values, no
 readme = "README.md"
 license  = "MIT OR Apache-2.0"
 repository = "https://github.com/StefanMathis/dyn_quantity.git"
-include = [
-    "Cargo.toml",
-    "README.md",
-    "/src",
-    "/tests",
-    "/common",
-    "build.rs",
-]
 
 [dependencies]
 uom = {version = "0.36", default-features = false, features = ["f64", "complex64", "si", "std", "serde"], optional = true}
 dyn_quantity_lexer = {version = "0.1", optional = true}
-# dyn_quantity_from_str = {version = "0.1"}
+dyn_quantity_from_str = {version = "0.1"}
 serde = {version = "1", features = ["derive", "rc"], optional = true }
-deserialize_untagged_verbose_error = {version = "0.1", optional = true}
+deserialize_untagged_verbose_error = {version = "0.1.5", optional = true}
 num = {version = "0.4"}
 
 [features]
@@ -34,3 +26,6 @@ dyn_quantity = { path = ".", features = ["uom", "serde"] }
 serde_yaml = "0.8"
 indoc = "1.0"
 approx = "0.5.1"
+
+[build-dependencies]
+dyn_quantity_from_str = "0.1"

@@ -1,58 +1,101 @@
-use std::env;
-use std::error::Error;
-use std::path::{PathBuf};
-use std::process::Command;
+use std::{
+    env,
+    error::Error,
+    fs,
+    path::{Path, PathBuf},
+    process::Command,
+};
 
 const CRATE_NAME: &str = "dyn_quantity_from_str";
-const LIB_NAME: &str = "libdyn_quantity_from_str.a";
 
+#[cfg(feature = "no_static_lib")]
 fn main() -> Result<(), Box<dyn Error>> {
-    // Only run staticlib logic if feature is NOT enabled
-    #[cfg(not(feature = "no_static_lib"))]
-    build_staticlib()?;
+    // If no_static_lib is enabled, we don't link to anything
+    Ok(())
+}
+
+#[cfg(not(feature = "no_static_lib"))]
+fn main() -> Result<(), Box<dyn Error>> {
+    let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
+
+    let crate_dir = manifest_dir.join("dyn_quantity_from_str");
+    let out_dir = PathBuf::from(env::var("OUT_DIR")?);
+    let crate_target_dir = out_dir.join("staticlib");
+    let release_dir = crate_target_dir.join("release").join("deps");
+
+    println!(
+        "cargo:rerun-if-changed={}",
+        crate_dir.join("src/lib.rs").display()
+    );
+    println!(
+        "cargo:rerun-if-changed={}",
+        crate_dir.join("Cargo.toml").display()
+    );
+
+    let (lib_path, _orig_name) = match find_static_lib(&release_dir) {
+        Some(result) => result,
+        None => {
+            println!("Static library not found, building {}...", CRATE_NAME);
+
+            let status = Command::new("cargo")
+                .args([
+                    "build",
+                    "--release",
+                    "--package",
+                    CRATE_NAME,
+                    "--target-dir",
+                    &crate_target_dir.to_string_lossy(),
+                    "--lib",
+                ])
+                .status()?;
+
+            if !status.success() {
+                panic!("Failed to build {CRATE_NAME} static library");
+            }
+
+            find_static_lib(&release_dir).expect("Staticlib not found after building!")
+        }
+    };
+
+    // Normalized name: libdyn_quantity_from_str.a
+    let normalized_path = lib_path
+        .parent()
+        .unwrap()
+        .join(format!("lib{CRATE_NAME}.a"));
+
+    if !normalized_path.exists() {
+        fs::copy(&lib_path, &normalized_path)?;
+        println!(
+            "Copied staticlib to normalized name: {}",
+            normalized_path.display()
+        );
+    }
+
+    // Link the normalized version
+    link_lib(&normalized_path);
 
     Ok(())
 }
 
 #[cfg(not(feature = "no_static_lib"))]
-fn build_staticlib() -> Result<(), Box<dyn Error>> {
-    // Output directory for build artifacts
-    let out_dir = PathBuf::from(env::var("OUT_DIR")?);
-    let staticlib_target_dir = out_dir.join("dyn_quantity_staticlib_target");
-    let staticlib_path = staticlib_target_dir.join("release").join(LIB_NAME);
-
-    // Only rebuild the staticlib if it does not exist
-    if !staticlib_path.exists() {
-        println!("cargo:warning=Staticlib not found, building dyn_quantity_from_str...");
-
-        let status = Command::new("cargo")
-            .args([
-                "build",
-                "--release",
-                "--package",
-                CRATE_NAME,
-                "--target-dir",
-                staticlib_target_dir.to_str().unwrap(),
-            ])
-            .status()
-            .expect("Failed to run cargo build");
-
-        if !status.success() {
-            panic!("Failed to build staticlib for {CRATE_NAME}");
+fn find_static_lib(release_dir: &Path) -> Option<(PathBuf, String)> {
+    let entries = fs::read_dir(release_dir).ok()?;
+    for entry in entries {
+        if let Ok(entry) = entry {
+            let fname = entry.file_name().to_string_lossy().to_string();
+            if fname.starts_with("libdyn_quantity_from_str-") && fname.ends_with(".a") {
+                return Some((entry.path(), fname));
+            }
         }
-    } else {
-        println!("cargo:warning=Staticlib already exists, skipping rebuild.");
     }
+    None
+}
 
-    // Link the staticlib
-    println!(
-        "cargo:rustc-link-search=native={}",
-        staticlib_path.parent().unwrap().display()
-    );
+#[cfg(not(feature = "no_static_lib"))]
+fn link_lib(lib_path: &Path) {
+    let dir = lib_path.parent().expect("No parent dir for .a file");
+    println!("cargo:rustc-link-search=native={}", dir.display());
+
+    // Link with the normalized name (without hash)
     println!("cargo:rustc-link-lib=static={}", CRATE_NAME);
-
-    // Prevent rebuild if unnecessary
-    println!("cargo:rerun-if-changed=build.rs");
-
-    Ok(())
 }
