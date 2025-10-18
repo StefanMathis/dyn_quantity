@@ -102,15 +102,16 @@ fn inner() -> Result<(), Box<dyn Error>> {
             .output()
             .map_err(Box::new)?;
 
-        // Move the library into the root directory of this crate
+        // Move the library into the OUT_DIR of this crate
         let mut src = crate_dir.to_path_buf();
         src.push("dyn_quantity_from_str");
         src.push("target");
         src.push("release");
         src.push(LIB_NAME);
 
-        let mut dst = crate_dir.to_path_buf();
-        dst.push(LIB_NAME);
+        // Get the path to the build output directory
+        let out_dir = env::var("OUT_DIR").unwrap();
+        let dst = Path::new(&out_dir).join("libdyn_quantity_from_str.a");
 
         fs::copy(src.as_path(), dst.as_path()).map_err(Box::new)?;
 
@@ -126,10 +127,12 @@ fn inner() -> Result<(), Box<dyn Error>> {
     // ===================================================================
 
     // Provide search path
-    println!("cargo:rustc-link-search={}", env!("CARGO_MANIFEST_DIR"));
+    let out_dir = env::var("OUT_DIR").unwrap();
+    println!("cargo:rustc-link-search=native={}", out_dir);
+    println!("cargo:rustc-link-lib=static=dyn_quantity_from_str");
 
     // Check if the lib is already compiled. If not, build the library
-    let crate_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let crate_dir = PathBuf::from(out_dir);
     let mut lib_dir = crate_dir.clone();
     lib_dir.push(LIB_NAME);
 
