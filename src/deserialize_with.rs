@@ -17,6 +17,7 @@ use crate::{ConversionError, DynQuantity, UnitExponents};
 #[derive(DeserializeUntaggedVerboseError)]
 enum NumberOrString<T> {
     Number(T),
+    #[cfg(feature = "from_str")]
     String(String),
 }
 
@@ -103,6 +104,7 @@ where
         Some(number_or_string) => {
             match number_or_string {
                 NumberOrString::Number(quantity) => Ok(Some(quantity)),
+                #[cfg(feature = "from_str")]
                 NumberOrString::String(string) => {
                     // Deserialize using the SI unit parser
                     let quantity = DynQuantity::<Complex<f64>>::from_str(&string)
@@ -195,6 +197,7 @@ where
         Some(number_or_string) => {
             match number_or_string {
                 NumberOrString::Number(quantity) => Ok(Some(quantity)),
+                #[cfg(feature = "from_str")]
                 NumberOrString::String(string) => {
                     // Deserialize using the SI unit parser
                     let quantity =
@@ -309,7 +312,34 @@ where
             match q {
                 QuantityVecEnum::Vec(vec) => return Ok(Some(vec)),
                 QuantityVecEnum::QuantityVec(vec) => return Ok(Some(vec.0)),
+                #[cfg(feature = "from_str")]
                 QuantityVecEnum::String(string) => {
+                    fn parse_vec<T, E>(
+                        input: &str,
+                        multiplier: &DynQuantity<Complex<f64>>,
+                    ) -> Result<Vec<T>, String>
+                    where
+                        T: TryFrom<DynQuantity<Complex<f64>>, Error = E>,
+                        E: std::fmt::Display,
+                    {
+                        let mut output = Vec::new();
+                        for slice in input.split(&['[', ',', ']'][..]) {
+                            // Skip slices which are empty or contain
+                            if slice.is_empty() {
+                                continue;
+                            }
+                            let quantity = match DynQuantity::from_str(slice) {
+                                Ok(quantity) => quantity,
+                                Err(_) => continue,
+                            };
+                            let quantity_mult = quantity * multiplier.clone();
+                            let element: T =
+                                quantity_mult.try_into().map_err(|err: E| err.to_string())?;
+                            output.push(element)
+                        }
+                        return Ok(output);
+                    }
+
                     // Remove the unit from the string by finding the closing
                     // bracket of the vector "]". The slice before the closing
                     // bracket can then be deserialized as a vector of floats,
@@ -350,28 +380,6 @@ where
     }
 }
 
-fn parse_vec<T, E>(input: &str, multiplier: &DynQuantity<Complex<f64>>) -> Result<Vec<T>, String>
-where
-    T: TryFrom<DynQuantity<Complex<f64>>, Error = E>,
-    E: std::fmt::Display,
-{
-    let mut output = Vec::new();
-    for slice in input.split(&['[', ',', ']'][..]) {
-        // Skip slices which are empty or contain
-        if slice.is_empty() {
-            continue;
-        }
-        let quantity = match DynQuantity::from_str(slice) {
-            Ok(quantity) => quantity,
-            Err(_) => continue,
-        };
-        let quantity_mult = quantity * multiplier.clone();
-        let element: T = quantity_mult.try_into().map_err(|err: E| err.to_string())?;
-        output.push(element)
-    }
-    return Ok(output);
-}
-
 #[derive(DeserializeUntaggedVerboseError)]
 enum QuantityVecEnum<T>
 where
@@ -380,6 +388,7 @@ where
 {
     Vec(Vec<T>),
     QuantityVec(QuantityVec<T>),
+    #[cfg(feature = "from_str")]
     String(String),
 }
 
@@ -432,6 +441,7 @@ where
                         while let Some(quantity_rep) = seq.next_element::<NumberOrString<T>>()? {
                             match quantity_rep {
                                 NumberOrString::Number(quantity) => vec.0.push(quantity),
+                                #[cfg(feature = "from_str")]
                                 NumberOrString::String(_) => {
                                     return Err(serde::de::Error::custom(
                                         "either all elements of the vector must have the same quantity, or no element must have a quantity",
@@ -440,6 +450,7 @@ where
                             }
                         }
                     }
+                    #[cfg(feature = "from_str")]
                     NumberOrString::String(string) => {
                         let first_element =
                             DynQuantity::from_str(&string).map_err(serde::de::Error::custom)?;

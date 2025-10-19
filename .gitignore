@@ -1,5 +1,3 @@
 /target
-/dyn_quantity_from_str/target/
 /dyn_quantity_lexer/target/
 *.lock
-*.a
