@@ -287,6 +287,21 @@ impl UnitExponents {
     }
 
     /**
+    Returns the [`UnitExponents`] for magnetic field strength.
+     */
+    pub const fn magnetic_field_strength() -> Self {
+        return Self {
+            second: 0,
+            meter: -1,
+            kilogram: 0,
+            ampere: 1,
+            kelvin: 0,
+            mol: 0,
+            candela: 0,
+        };
+    }
+
+    /**
     Returns the [`UnitExponents`] for inductance.
      */
     pub const fn inductance() -> Self {
