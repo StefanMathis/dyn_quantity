@@ -4,7 +4,16 @@
 pub mod uom_impl;
 
 #[cfg(feature = "serde")]
+pub mod serde_impl;
+
+#[cfg(feature = "serde")]
 pub mod deserialize_with;
+
+#[cfg(feature = "serde")]
+pub use deserialize_with::{
+    deserialize_angle, deserialize_opt_angle, deserialize_opt_quantity,
+    deserialize_opt_vec_of_quantities, deserialize_quantity, deserialize_vec_of_quantities,
+};
 
 // =============================================================================
 // From here, the code needs to be copied into dyn_quantity/dyn_quantity_from_str/src/lib.rs.
@@ -14,19 +23,10 @@ pub mod from_str;
 use num::Complex;
 use num::complex::ComplexFloat;
 
-#[cfg(all(feature = "uom", feature = "serde"))]
-pub use deserialize_with::{
-    deserialize_angle, deserialize_opt_angle, deserialize_opt_quantity,
-    deserialize_opt_vec_of_quantities, deserialize_quantity, deserialize_vec_of_quantities,
-};
-
 use std::error::Error;
 use std::fmt::Display;
 use std::ops::{Div, DivAssign, Mul, MulAssign};
 pub use std::str::FromStr;
-
-#[cfg(feature = "serde")]
-use serde::{Deserialize, Serialize};
 
 mod private {
     use super::Complex;
@@ -229,8 +229,6 @@ The three different possibilities are realized via a crate-internal untagged enu
 */
 #[derive(Debug, Clone, PartialEq, Default)]
 #[repr(C)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serde", serde(try_from = "serde_impl::QuantityVariants<V>"))]
 pub struct DynQuantity<V: F64RealOrComplex> {
     /**
     The value of the physical quantity.
@@ -239,7 +237,6 @@ pub struct DynQuantity<V: F64RealOrComplex> {
     /**
     The (SI) base units of the physical quantity, represented by their exponents.
      */
-    #[cfg_attr(feature = "serde", serde(default))]
     pub exponents: UnitExponents,
 }
 
@@ -576,69 +573,6 @@ pub fn to_vec_checked(quantity_slice: &[DynQuantity<f64>]) -> Result<Vec<f64>, C
     return Ok(output);
 }
 
-#[cfg(feature = "serde")]
-mod serde_impl {
-    use super::*;
-    use deserialize_untagged_verbose_error::DeserializeUntaggedVerboseError;
-    use serde::Deserialize;
-    use std::str::FromStr;
-
-    /**
-    A [`DynQuantity`] can be deserialized a couple of different representations.
-     */
-    #[derive(DeserializeUntaggedVerboseError)]
-    pub(super) enum QuantityVariants<V>
-    where
-        V: F64RealOrComplex,
-    {
-        /**
-        Native representation of [`DynQuantity`] (via an alias struct in order
-        to avoid infinite recursion)-
-         */
-        Quantity(QuantityAlias<V>),
-        /**
-        String representation using the [`std::str::FromStr`] implementation for
-        [`DynQuantity`].
-         */
-        String(String),
-        /**
-        A value without any units - in that case, the unit exponents are assumed
-        to be zero and the value to be dimensionless.
-         */
-        Value(V),
-    }
-
-    #[derive(Deserialize)]
-    pub(super) struct QuantityAlias<V: F64RealOrComplex> {
-        value: V,
-        exponents: UnitExponents,
-    }
-
-    impl<V: F64RealOrComplex> TryFrom<QuantityVariants<V>> for DynQuantity<V> {
-        type Error = super::ParseError;
-
-        fn try_from(variant: QuantityVariants<V>) -> Result<Self, Self::Error> {
-            match variant {
-                QuantityVariants::Quantity(variant) => {
-                    return Ok(Self {
-                        value: variant.value,
-                        exponents: variant.exponents,
-                    });
-                }
-                QuantityVariants::String(string) => {
-                    return Self::from_str(&string);
-                }
-                QuantityVariants::Value(value) => {
-                    return Ok(Self {
-                        value,
-                        exponents: UnitExponents::default(),
-                    });
-                }
-            }
-        }
-    }
-}
-
 // ====================================================
 
 /**
@@ -647,7 +581,6 @@ the base units.
  */
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 #[repr(C)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct UnitExponents {
     pub second: i32,
     pub meter: i32,

@@ -1,3 +1,11 @@
+/*!
+This module is a copy of the file src/src/from_str/from_str_impl.rs from the
+dyn_quantity crate. Some code needs to be available in both modules, see
+README.md of the dyn_quantity crate. All the docstrings and the examples hence
+refer to the dyn_quantity crate. The dyn_quantity_from_str crate is not meant to
+be used stand-alone.
+*/
+
 // =============================================================================
 // Code copied verbatim from dyn_quantity/src/from_str/from_str_impl.rs
 

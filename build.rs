@@ -20,7 +20,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let crate_dir = manifest_dir.join("dyn_quantity_from_str");
     let out_dir = PathBuf::from(env::var("OUT_DIR")?);
-    let crate_target_dir = out_dir.join("staticlib");
+    let crate_target_dir = out_dir.join("dyn_quantity_staticlib_target");
     let release_dir = crate_target_dir.join("release").join("deps");
 
     println!(

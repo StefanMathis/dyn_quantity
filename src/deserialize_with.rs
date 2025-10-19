@@ -310,9 +310,11 @@ where
                 QuantityVecEnum::Vec(vec) => return Ok(Some(vec)),
                 QuantityVecEnum::QuantityVec(vec) => return Ok(Some(vec.0)),
                 QuantityVecEnum::String(string) => {
-                    // Remove the unit from the string by finding the closing bracket of the vector "]".
-                    // The slice before the closing bracket can then be deserialized as a vector of floats, while the slice behind
-                    // the closing bracket can be interpreted as a DynQuantity (which can then be compared to the input uom quantity).
+                    // Remove the unit from the string by finding the closing
+                    // bracket of the vector "]". The slice before the closing
+                    // bracket can then be deserialized as a vector of floats,
+                    // while the slice behind the closing bracket can be
+                    // interpreted as UnitExponents.
                     match string.find(']') {
                         Some(byte) => {
                             if let Some(quantity_str) = string.get(byte + 1..) {
