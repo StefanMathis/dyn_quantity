@@ -1,5 +1,7 @@
 #![doc = include_str!("../README.md")]
 
+pub mod unit_exponents_constructors;
+
 #[cfg(feature = "uom")]
 pub mod uom_impl;
 
@@ -15,10 +17,46 @@ pub use deserialize_with::{
     deserialize_opt_vec_of_quantities, deserialize_quantity, deserialize_vec_of_quantities,
 };
 
-// =============================================================================
-// From here, the code needs to be copied into dyn_quantity/dyn_quantity_from_str/src/lib.rs.
-
+#[cfg(feature = "from_str")]
 pub mod from_str;
+
+/**
+A trait to derive [`UnitExponents`] from a type. This trait bridges the gap
+between (external) types representing physical quantities (such as e.g. the
+[`Quantity`](uom::si::Quantity) type from the [`uom`] crate) and [`UnitExponents`].
+ */
+pub trait AsUnitExponents {
+    /**
+    This function derives an [`UnitExponents`] from any type which implements
+    [`AsUnitExponents`]. Its default implementation returns an [`UnitExponents`]
+    where all exponents are zero.
+
+    # Examples
+    ```
+    use dyn_quantity::AsUnitExponents;
+    use uom::si::f64::Length;
+
+    // 64-bit floats do not represent a physical quantity
+    let exp = f64::as_unit_exponents();
+    assert_eq!(exp.meter, 0);
+
+    // The "Length" type alias from the uom crate represents a physical quantity (length)
+    let exp = Length::as_unit_exponents();
+    assert_eq!(exp.meter, 1);
+    ```
+    */
+    fn as_unit_exponents() -> UnitExponents {
+        return UnitExponents::default();
+    }
+}
+
+impl AsUnitExponents for f64 {}
+
+impl AsUnitExponents for Complex<f64> {}
+
+// =============================================================================
+// All code below this line needs to be copied into
+// dyn_quantity/dyn_quantity_from_str/src/lib.rs.
 
 use num::Complex;
 use num::complex::ComplexFloat;
@@ -206,7 +244,8 @@ exponents:
 ```
 
 2) Deserializing directly from a string. This uses the [`std::str::FromStr`]
-implementation under the hood, see the [`from_str`] module documentation.
+implementation under the hood, see the [`from_str`] module documentation. Only
+available if the **from_str** feature is enabled.
 3) Deserialize directly from a real or complex value. This option is mainly here
 to allow deserializing a serialized [`uom`] quantity (whose serialized
 representation is simply its numerical value without any units). For example,

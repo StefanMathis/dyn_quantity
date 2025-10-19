@@ -1,7 +1,15 @@
+/*!
+This module is only available if the [`serde`] feature is enabled.
+It contains the serialization and deserialization implementations for
+[`DynQuantity`] and [`UnitExponents`].
+*/
+
 use crate::{DynQuantity, F64RealOrComplex, UnitExponents};
 use deserialize_untagged_verbose_error::DeserializeUntaggedVerboseError;
 use serde::de::{Deserialize, Deserializer, MapAccess, SeqAccess, Visitor};
 use serde::ser::{Serialize, SerializeStruct, Serializer};
+
+#[cfg(feature = "from_str")]
 use std::str::FromStr;
 
 impl<V> Serialize for DynQuantity<V>
@@ -49,6 +57,7 @@ where
     String representation using the [`std::str::FromStr`] implementation for
     [`DynQuantity`].
      */
+    #[cfg(feature = "from_str")]
     String(String),
     /**
     A value without any units - in that case, the unit exponents are assumed
@@ -74,6 +83,7 @@ impl<V: F64RealOrComplex> TryFrom<QuantityVariants<V>> for DynQuantity<V> {
                     exponents: variant.exponents,
                 });
             }
+            #[cfg(feature = "from_str")]
             QuantityVariants::String(string) => {
                 return Self::from_str(&string);
             }

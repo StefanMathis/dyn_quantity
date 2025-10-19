@@ -8,13 +8,13 @@ use std::{
 
 const CRATE_NAME: &str = "dyn_quantity_from_str";
 
-#[cfg(feature = "no_static_lib")]
+#[cfg(any(feature = "no_static_lib", not(feature = "from_str")))]
 fn main() -> Result<(), Box<dyn Error>> {
     // If no_static_lib is enabled, we don't link to anything
     Ok(())
 }
 
-#[cfg(not(feature = "no_static_lib"))]
+#[cfg(all(not(feature = "no_static_lib"), feature = "from_str"))]
 fn main() -> Result<(), Box<dyn Error>> {
     let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
 

@@ -5,10 +5,10 @@ crate. All the docstrings and the examples hence refer to the dyn_quantity
 crate. The dyn_quantity_from_str crate is not meant to be used stand-alone.
 */
 
+pub mod from_str;
+
 // =============================================================================
 // Code copied verbatim from dyn_quantity/src/lib.rs
-
-pub mod from_str;
 
 use num::Complex;
 use num::complex::ComplexFloat;

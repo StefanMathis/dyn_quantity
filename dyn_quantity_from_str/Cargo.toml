@@ -1,6 +1,6 @@
 [package]
 name = "dyn_quantity_from_str"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2024"
 description = "Static library builder for FromStr implementation of crate dyn_quantity"
 readme = "README.md"
@@ -10,6 +10,9 @@ repository = "https://github.com/StefanMathis/dyn_quantity.git"
 [dependencies]
 dyn_quantity_lexer = {version = "0.1"}
 num = {version = "0.4"}
+
+[features]
+default = []
 
 [lib]
 name = "dyn_quantity_from_str"

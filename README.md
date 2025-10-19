@@ -7,14 +7,15 @@ dyn_quantity
 [`from_str`]: https://docs.rs/dyn_quantity/0.1.1/dyn_quantity/from_str/index.html
 [`deserialize_with`]: https://docs.rs/dyn_quantity/0.1.1/dyn_quantity/deserialize_with/index.html
 [`FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
-[dyn_quantity_lexer]: https://docs.rs/dyn_quantity_lexer/0.1.0/dyn_quantity_lexer/index.html
+[dyn_quantity_lexer]: https://docs.rs/dyn_quantity_lexer/latest/dyn_quantity_lexer/index.html
+[dyn_quantity_from_str]: https://docs.rs/dyn_quantity_lexer/latest/dyn_quantity_lexer/index.html
 
 The strong type system of rust allows defining physical quantities as types -
 see for example the [uom](https://docs.rs/uom/latest/uom/) crate. This is very
 useful to evaluate the correctness of calculations at compile time. Sometimes
 however, the type of a physical quantity is not known until runtime - for
-example, when parsing a user-provided string. This is where this crate comes
-into play:
+example, when parsing a user-provided string (requires feature **from_str** to
+be enabled). This is where this crate comes into play:
 
 ```rust
 use std::str::FromStr;
@@ -52,8 +53,19 @@ physical quantity at runtime via its numerical value and the exponents of the
 involved SI base units. The latter are fields of the struct [`UnitExponents`],
 which in turn is a field of [`DynQuantity`].
 
-It is possible to perform basic arithmetic operations on this struct. While
-some operations such as multiplication, division and exponentiation are 
+The [`DynQuantity`] offers the following features:
+* Performing simple arithmetic operations on quantities where the units are
+only known at runtime.
+* Conversion into statically-typed quantities (requires the **uom** feature to
+be enabled).
+* Serialization and deserialization, in case of the latter from multiple
+different representations (requires the **serde** feature to be enabled).
+* Parsing quantities at runtime from strings (requires the **from_str** feature
+to be enabled).
+
+# Arithmetic operations
+
+While some operations such as multiplication, division and exponentiation are 
 infallible, addition and subtraction require the unit exponents of both involved
 [`DynQuantity`] structs to be identical. This is checked at runtime:
 
@@ -103,9 +115,7 @@ assert_eq!(res.value, 3.0);
 assert!(quantity.try_nthroot(4).is_err());
 ```
 
-# Integration with other crates
-
-## uom
+# Conversion into statically-typed quantities
 
 The uom integration is gated behind the **uom** feature flag.
 
@@ -134,7 +144,7 @@ assert!(Velocity::try_from(quantity).is_err());
 The reverse conversion from a [`Quantity`] to a [`DynQuantity`] is always
 possible via the `From` implementation.
 
-## serde
+# Serialization and deserialization
 
 The serde integration is gated behind the **serde** feature flag.
 
@@ -165,64 +175,57 @@ assert_eq!(wrapper.length.get::<meter>(), 1.2);
 ```
 The [`deserialize_with`] module holds all available functions.
 
-# Architecture and building instructions
+# Parsing strings
 
-## Overview
+The ability to parse strings is gated behind the **from_str** feature flag.
 
-At its core, this crate offers the following functionality via the
-[`DynQuantity`] struct:
-* Performing simple arithmetic operations on quantities where the units are
-only known at runtime.
-* Conversion into statically-typed quantities (requires the **uom** feature to
-be enabled).
-* Serialization and deserialization, in case of the latter from multiple
-different representations (requires the **serde** feature to be enabled).
-* Parsing quantities at runtime from strings.
-
-For the last feature, the [logos](https://docs.rs/logos/latest/logos/) crate
-is used within the sub-crate [dyn_quantity_lexer].
-[logos](https://docs.rs/logos/latest/logos/) creates a high-performance lexer
-via a procedural macro at compile time. If [dyn_quantity_lexer] is simply
-statically compiled into the final binary, each dependent of dyn_quantity needs
-to compile the lexer anew, leading to very long compile times.
+An important part of any parser is the
+[lexer](https://en.wikipedia.org/wiki/Lexical_analysis), which converts the
+array of characters which make up the string into meaningful tokens. These
+tokens are then later syntactically analyzed and converted to a [`DynQuantity`].
+This crate uses the [logos](https://docs.rs/logos/latest/logos/) crate (inside
+[dyn_quantity_lexer]) to generate a high-performance lexer via a procedural
+macro at compile time. If [dyn_quantity_lexer] is simply statically compiled
+into the final binary, each dependent of dyn_quantity needs to compile the lexer
+anew, leading to very long compile times.
 
 To circumvent this issue, this crate offers the possibility of compiling the
-parser (of which the lexer is a part of) into a separate static library once.
-The library is then simply linked into the final binaries of dependents, greatly
-reducing the required compile time. This is the default compilation strategy
-realized in `build.rs`. However, sometimes it might be necessary to directly
-compile the parser into the final binary. The paragraphs below contain
+parser (of which the lexer is a part of) into a separate static library once
+(using the [dyn_quantity_from_str] crate). The library is then simply linked
+into the final binaries of dependents, greatly reducing the required compile
+time. This is the default compilation strategy realized in `build.rs`.
+However, sometimes it might be necessary to directly compile the parser into
+the final binary, for example when building the library fails for some reason or
+to avoid symbol clashes when linking multiple static libraries (see e.g. issue
+<https://github.com/rust-lang/rust/issues/44322>). The paragraphs below contain
 information for each building strategy so the dependent of this crate can choose
-its preferred model.
-
-## Shared source code
-
-In case the 
+its preferred model. 
 
 ## Compiling parser and lexer directly into the final binary
 
 This is the "standard" Rust way of handling dependencies: Compile all the source
 code (including parser and lexer) into one single binary. The big advantage of
-this strategy is that it is very robust. The disadvantage is the long compile
-time.
+this strategy is that it is very robust, therefore it should be chosen if
+the static library strategy fails. The disadvantage are the long
+compile times for each dependent.
 
 This compilation strategy can be enabled via the feature flag **no_static_lib**.
+If **from_str** is disabled, the **no_static_lib** flag doesn't do anything.
 
 ## Compiling parser and lexer into a separate static library
 
-REWRITE this
-
-This strategy works as follows:
-1) Check if there is already a static parser library available at the top
-repository level (`libdyn_quantity_from_str.a`). If true, go to step 5.
+The basic idea is to compile [dyn_quantity_from_str] to a static library via
+`build.rs` and then link to the resulting library. The principal steps are as
+follows:
+1) Check if there is already a static parser library available within the build
+artifacts directory of [dyn_quantity_from_str]. If true, go to step 3.
 Otherwise, continue with step 2.
-2) Generate a new crate dyn_quantity_from_str using the crate template
-dyn_quantity_from_str_template and some components of the dyn_quantity crate
-(namely, `lib.rs`).
-3) Compile dyn_quantity_from_str to `libdyn_quantity_from_str.a` using standard
-cargo invocation (see `dyn_quantity_from_str_template/Cargo.toml`)
-4) Link to `libdyn_quantity_from_str.a` in `src/from_str/from_str_ext.rs`.
-
-The whole procedure is realized in `build.rs`.
+2) Compile dyn_quantity_from_str to a static library via `build.rs`.
+3) The resulting static library may have a hash attached to it (e.g.
+"libdyn_quantity_from_str-du8231dnjaw1.a). The hash "du8231dnjaw1" is stripped
+by copying the library to a new file "libdyn_quantity_from_str.a" in the build
+artifact directory.
+4) Link to "libdyn_quantity_from_str.a" in `src/from_str/from_str_ext.rs`.
 
 This compilation strategy is used if **no_static_lib** is disabled.
+If **from_str** is disabled, the **no_static_lib** flag doesn't do anything.

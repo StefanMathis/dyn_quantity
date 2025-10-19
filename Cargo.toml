@@ -10,7 +10,7 @@ repository = "https://github.com/StefanMathis/dyn_quantity.git"
 [dependencies]
 uom = {version = "0.36", default-features = false, features = ["f64", "complex64", "si", "std", "serde"], optional = true}
 dyn_quantity_lexer = {version = "0.1", optional = true}
-dyn_quantity_from_str = {version = "0.1.4"}
+dyn_quantity_from_str = { version = "0.1.4", optional = true }
 serde = {version = "1", features = ["derive", "rc"], optional = true }
 deserialize_untagged_verbose_error = {version = "0.1.5", optional = true}
 num = {version = "0.4"}
@@ -18,14 +18,15 @@ num = {version = "0.4"}
 [features]
 default = []
 uom = ["dep:uom"]
+from_str = ["dep:dyn_quantity_from_str"]
 serde = ["dep:serde", "dep:deserialize_untagged_verbose_error", "num/serde"]
 no_static_lib = ["dep:dyn_quantity_lexer"]
 
 [dev-dependencies]
-dyn_quantity = { path = ".", features = ["uom", "serde"] }
+dyn_quantity = { path = ".", features = ["uom", "serde", "from_str"] }
 serde_yaml = "0.8"
 indoc = "1.0"
 approx = "0.5.1"
 
 [build-dependencies]
-dyn_quantity_from_str = "0.1.4"
+dyn_quantity_from_str = { version = "0.1.4", features = [] }
