@@ -8,7 +8,6 @@ dyn_quantity
 [`deserialize_with`]: https://docs.rs/dyn_quantity/0.1.1/dyn_quantity/deserialize_with/index.html
 [`FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
 [dyn_quantity_lexer]: https://docs.rs/dyn_quantity_lexer/latest/dyn_quantity_lexer/index.html
-[dyn_quantity_from_str]: https://docs.rs/dyn_quantity_lexer/latest/dyn_quantity_lexer/index.html
 
 The strong type system of rust allows defining physical quantities as types -
 see for example the [uom](https://docs.rs/uom/latest/uom/) crate. This is very
@@ -185,47 +184,6 @@ array of characters which make up the string into meaningful tokens. These
 tokens are then later syntactically analyzed and converted to a [`DynQuantity`].
 This crate uses the [logos](https://docs.rs/logos/latest/logos/) crate (inside
 [dyn_quantity_lexer]) to generate a high-performance lexer via a procedural
-macro at compile time. If [dyn_quantity_lexer] is simply statically compiled
-into the final binary, each dependent of dyn_quantity needs to compile the lexer
-anew, leading to very long compile times.
-
-To circumvent this issue, this crate offers the possibility of compiling the
-parser (of which the lexer is a part of) into a separate static library once
-(using the [dyn_quantity_from_str] crate). The library is then simply linked
-into the final binaries of dependents, greatly reducing the required compile
-time. This is the default compilation strategy realized in `build.rs`.
-However, sometimes it might be necessary to directly compile the parser into
-the final binary, for example when building the library fails for some reason or
-to avoid symbol clashes when linking multiple static libraries (see e.g. issue
-<https://github.com/rust-lang/rust/issues/44322>). The paragraphs below contain
-information for each building strategy so the dependent of this crate can choose
-its preferred model. 
-
-## Compiling parser and lexer directly into the final binary
-
-This is the "standard" Rust way of handling dependencies: Compile all the source
-code (including parser and lexer) into one single binary. The big advantage of
-this strategy is that it is very robust, therefore it should be chosen if
-the static library strategy fails. The disadvantage are the long
-compile times for each dependent.
-
-This compilation strategy can be enabled via the feature flag **no_static_lib**.
-If **from_str** is disabled, the **no_static_lib** flag doesn't do anything.
-
-## Compiling parser and lexer into a separate static library
-
-The basic idea is to compile [dyn_quantity_from_str] to a static library via
-`build.rs` and then link to the resulting library. The principal steps are as
-follows:
-1) Check if there is already a static parser library available within the build
-artifacts directory of [dyn_quantity_from_str]. If true, go to step 3.
-Otherwise, continue with step 2.
-2) Compile dyn_quantity_from_str to a static library via `build.rs`.
-3) The resulting static library may have a hash attached to it (e.g.
-"libdyn_quantity_from_str-du8231dnjaw1.a). The hash "du8231dnjaw1" is stripped
-by copying the library to a new file "libdyn_quantity_from_str.a" in the build
-artifact directory.
-4) Link to "libdyn_quantity_from_str.a" in `src/from_str/from_str_ext.rs`.
-
-This compilation strategy is used if **no_static_lib** is disabled.
-If **from_str** is disabled, the **no_static_lib** flag doesn't do anything.
+macro at compile time. The disadvantage of this approach is the long compile
+time caused by the procedural macro, hence this feature is hidden behing a
+feature flag.

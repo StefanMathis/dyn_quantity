@@ -1,6 +1,15 @@
 #![doc = include_str!("../README.md")]
+#![deny(missing_docs)]
 
-pub mod unit_exponents_constructors;
+mod unit_exponents_constructors;
+
+use num::Complex;
+use num::complex::ComplexFloat;
+
+use std::error::Error;
+use std::fmt::Display;
+use std::ops::{Div, DivAssign, Mul, MulAssign};
+pub use std::str::FromStr;
 
 #[cfg(feature = "uom")]
 pub mod uom_impl;
@@ -53,18 +62,6 @@ pub trait AsUnitExponents {
 impl AsUnitExponents for f64 {}
 
 impl AsUnitExponents for Complex<f64> {}
-
-// =============================================================================
-// All code below this line needs to be copied into
-// dyn_quantity/dyn_quantity_from_str/src/lib.rs.
-
-use num::Complex;
-use num::complex::ComplexFloat;
-
-use std::error::Error;
-use std::fmt::Display;
-use std::ops::{Div, DivAssign, Mul, MulAssign};
-pub use std::str::FromStr;
 
 mod private {
     use super::Complex;
@@ -621,12 +618,19 @@ the base units.
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 #[repr(C)]
 pub struct UnitExponents {
+    /// Exponent for the SI base unit of time.
     pub second: i32,
+    /// Exponent for the SI base unit of length.
     pub meter: i32,
+    /// Exponent for the SI base unit of mass.
     pub kilogram: i32,
+    /// Exponent for the SI base unit of electrical current.
     pub ampere: i32,
+    /// Exponent for the SI base unit of temperature.
     pub kelvin: i32,
+    /// Exponent for the SI base unit of amount of substance.
     pub mol: i32,
+    /// Exponent for the SI base unit of luminous intensity
     pub candela: i32,
 }
 
@@ -841,7 +845,9 @@ is not divisible by `n`.
  */
 #[derive(Default, Debug, Clone, PartialEq)]
 pub struct RootError {
+    /// Root index which lead to the error.
     pub n: i32,
+    /// Exponents for which the `n`th root could not be calculated.
     pub exponents: UnitExponents,
 }
 
@@ -924,15 +930,6 @@ pub enum ParseErrorReason {
     CouldNotParse,
 }
 
-impl ParseErrorReason {
-    pub fn discriminant(&self) -> u8 {
-        // SAFETY: Because `Self` is marked `repr(u8)`, its layout is a `repr(C)` `union`
-        // between `repr(C)` structs, each of which has the `u8` discriminant as its first
-        // field, so we can read the discriminant without offsetting the pointer.
-        unsafe { *<*const _>::from(self).cast::<u8>() }
-    }
-}
-
 impl std::fmt::Display for ParseErrorReason {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -984,7 +981,9 @@ representing a complex quantity into a [`DynQuantity<f64>`].
  */
 #[derive(Debug, Clone, PartialEq)]
 pub struct NotConvertibleFromComplexF64 {
+    /// Number which failed to convert.
     pub source: Complex<f64>,
+    /// Target type name.
     pub target_type: &'static str,
 }
 
@@ -1014,7 +1013,9 @@ pub enum ConversionError {
     NotConvertibleFromComplexF64(NotConvertibleFromComplexF64),
     /// Expected a certain unit of measurement, but found a different one.
     UnitMismatch {
+        /// Unit of measurement which was expected.
         expected: UnitExponents,
+        /// Unit of measurement which was found.
         found: UnitExponents,
     },
     /// Fallback case for all other errors.
@@ -1022,6 +1023,7 @@ pub enum ConversionError {
 }
 
 impl ConversionError {
+    /// Create [`Self`] from anything which can be converted to a string.
     pub fn custom<T: ToString>(err: T) -> Self {
         return Self::Custom(err.to_string());
     }
