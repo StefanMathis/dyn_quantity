@@ -6,13 +6,18 @@ implements [`TryFrom<DynQuantity>`]. See the docstring of [`DynQuantity`] for an
 overview over all possible representations.
 */
 
-use std::{marker::PhantomData, str::FromStr};
+use std::marker::PhantomData;
 
+use crate::DynQuantity;
 use deserialize_untagged_verbose_error::DeserializeUntaggedVerboseError;
 use num::Complex;
 use serde::{Deserialize, Deserializer, de::DeserializeOwned};
 
-use crate::{ConversionError, DynQuantity, UnitExponents};
+#[cfg(feature = "from_str")]
+use crate::{ConversionError, UnitExponents};
+
+#[cfg(feature = "from_str")]
+use std::str::FromStr;
 
 #[derive(DeserializeUntaggedVerboseError)]
 enum NumberOrString<T> {
