@@ -32,7 +32,8 @@ pub mod from_str;
 /**
 A trait to derive [`UnitExponents`] from a type. This trait bridges the gap
 between (external) types representing physical quantities (such as e.g. the
-[`Quantity`](uom::si::Quantity) type from the [`uom`] crate) and [`UnitExponents`].
+[`Quantity`](https://docs.rs/uom/latest/uom/si/struct.Quantity.html) type from
+the [uom](https://crates.io/crates/uom) crate) and [`UnitExponents`].
  */
 pub trait AsUnitExponents {
     /**
@@ -192,8 +193,8 @@ at runtime.
 
 This property is very useful when e.g. parsing a user-provided string to a
 physical quantity. For this case, [`DynQuantity`] implements the
-[`FromStr`](`std::str::FromStr`) trait. The module documentation [`from_str`]
-has more information regarding the available syntax.
+[`FromStr`](`std::str::FromStr`) trait. The module documentation
+[`from_str`](crate::from_str) has more information regarding the available syntax.
 
 The `V` generic parameter needs to implement [`F64RealOrComplex`].
 Currently, implementors are [`f64`] and [`Complex<f64>`]. It is possible to
@@ -214,17 +215,18 @@ assert_eq!(quantity.to_string(), "9.81 s^-2 m".to_string());
 
 # Conversion into uom `Quantity`
 
-If the [`uom`] feature is enabled, a [`DynQuantity`] can be (fallible)
-converted into a [`uom::si::Quantity`] via [`TryFrom`]. In combination with the
-aforementioned parsing capabilities, this allows fallible parsing of strings to
-statically-typed physical quantities.
+If the **uom** feature is enabled, a [`DynQuantity`] can be (fallible)
+converted into a
+[`Quantity`](https://docs.rs/uom/latest/uom/si/struct.Quantity.html) via
+[`TryFrom`]. In combination with the aforementioned parsing capabilities, this
+allows fallible parsing of strings to statically-typed physical quantities.
 
 # Serialization and deserialization
 
-If the [`serde`] feature is enabled, this struct can be serialized and
-deserialized. Serialization creates the "standard" [`serde`] representation
-one would expect from the [`Serialize`] macro. When deserializing however,
-multiple options are available:
+If the **serde** feature is enabled, this struct can be serialized and
+deserialized. Serialization creates the "standard"
+[serde](https://crates.io/crates/serde) representation one would expect from the
+[`Serialize`] macro. When deserializing however, multiple options are available:
 1) Using the "standard" serialized representation of a struct. For example, the
 yaml representation of a [`DynQuantity<f64>`] looks like this:
 ```text
@@ -241,13 +243,13 @@ exponents:
 ```
 
 2) Deserializing directly from a string. This uses the [`std::str::FromStr`]
-implementation under the hood, see the [`from_str`] module documentation. Only
-available if the **from_str** feature is enabled.
+implementation under the hood, see the [`from_str`](crate::from_str) module
+documentation. Only available if the **from_str** feature is enabled.
 3) Deserialize directly from a real or complex value. This option is mainly here
-to allow deserializing a serialized [`uom`] quantity (whose serialized
-representation is simply its numerical value without any units). For example,
-deserializing `5.0` into [`DynQuantity<f64>`] produces the same result as
-deserializing:
+to allow deserializing a serialized [uom](https://crates.io/crates/uom) quantity
+(whose serialized representation is simply its numerical value without any
+units). For example, deserializing `5.0` into [`DynQuantity<f64>`] produces the
+same result as deserializing:
 ```text
 ---
 value: 5.0
@@ -1004,8 +1006,8 @@ Error describing a failed attempt to convert between different types representin
 quantities.
 
 This error can e.g. be returned when trying to convert a [`DynQuantity`] to a
-[`uom::si::Quantity`] via the [`TryFrom`] implementation. See docstring of
-[`DynQuantity`].
+[`Quantity`](https://docs.rs/uom/latest/uom/si/struct.Quantity.html) via the
+[`TryFrom`] implementation. See docstring of [`DynQuantity`].
 */
 #[derive(Debug, Clone, PartialEq)]
 pub enum ConversionError {

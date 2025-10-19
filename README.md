@@ -1,11 +1,11 @@
 dyn_quantity
 ============
 
-[`DynQuantity`]: https://docs.rs/dyn_quantity/0.1.1/dyn_quantity/struct.DynQuantity.html
-[`UnitExponents`]: https://docs.rs/dyn_quantity/0.1.1/dyn_quantity/struct.UnitExponents.html
+[`DynQuantity`]: https://docs.rs/dyn_quantity/0.1.2/dyn_quantity/struct.DynQuantity.html
+[`UnitExponents`]: https://docs.rs/dyn_quantity/0.1.2/dyn_quantity/struct.UnitExponents.html
 [`Quantity`]: https://docs.rs/uom/latest/uom/si/struct.Quantity.html
-[`from_str`]: https://docs.rs/dyn_quantity/0.1.1/dyn_quantity/from_str/index.html
-[`deserialize_with`]: https://docs.rs/dyn_quantity/0.1.1/dyn_quantity/deserialize_with/index.html
+[`from_str`]: https://docs.rs/dyn_quantity/0.1.2/dyn_quantity/from_str/index.html
+[`deserialize_with`]: https://docs.rs/dyn_quantity/0.1.2/dyn_quantity/deserialize_with/index.html
 [`FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
 [dyn_quantity_lexer]: https://docs.rs/dyn_quantity_lexer/latest/dyn_quantity_lexer/index.html
 
