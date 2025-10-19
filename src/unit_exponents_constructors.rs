@@ -47,9 +47,9 @@ impl UnitExponents {
     }
 
     /**
-    Returns the [`UnitExponents`] for (electrical) current.
+    Returns the [`UnitExponents`] for (electric) current.
      */
-    pub const fn electrical_current() -> Self {
+    pub const fn electric_current() -> Self {
         return Self {
             second: 0,
             meter: 0,
@@ -137,9 +137,9 @@ impl UnitExponents {
     }
 
     /**
-    Returns the [`UnitExponents`] for (electrical) voltage.
+    Returns the [`UnitExponents`] for (electric) voltage.
      */
-    pub const fn electrical_voltage() -> Self {
+    pub const fn electric_voltage() -> Self {
         return Self {
             second: -3,
             meter: 2,
@@ -302,9 +302,9 @@ impl UnitExponents {
     }
 
     /**
-    Returns the [`UnitExponents`] for (electrical) conductance.
+    Returns the [`UnitExponents`] for (electric) conductance.
      */
-    pub const fn electrical_conductance() -> Self {
+    pub const fn electric_conductance() -> Self {
         return Self {
             second: 3,
             meter: -2,
@@ -317,9 +317,9 @@ impl UnitExponents {
     }
 
     /**
-    Returns the [`UnitExponents`] for (electrical) resistance.
+    Returns the [`UnitExponents`] for (electric) resistance.
      */
-    pub const fn electrical_resistance() -> Self {
+    pub const fn electric_resistance() -> Self {
         return Self {
             second: -3,
             meter: 2,
@@ -332,9 +332,9 @@ impl UnitExponents {
     }
 
     /**
-    Returns the [`UnitExponents`] for (electrical) conductivity.
+    Returns the [`UnitExponents`] for (electric) conductivity.
      */
-    pub const fn electrical_conductivity() -> Self {
+    pub const fn electric_conductivity() -> Self {
         return Self {
             second: 3,
             meter: -3,
@@ -347,9 +347,9 @@ impl UnitExponents {
     }
 
     /**
-    Returns the [`UnitExponents`] for (electrical) resistivity.
+    Returns the [`UnitExponents`] for (electric) resistivity.
      */
-    pub const fn electrical_resistivity() -> Self {
+    pub const fn electric_resistivity() -> Self {
         return Self {
             second: -3,
             meter: 3,

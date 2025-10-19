@@ -33,7 +33,7 @@ fn constructors() {
         assert_eq!(exp.candela, 0);
     }
     {
-        let exp = UnitExponents::electrical_current();
+        let exp = UnitExponents::electric_current();
         assert_eq!(exp.second, 0);
         assert_eq!(exp.meter, 0);
         assert_eq!(exp.kilogram, 0);
