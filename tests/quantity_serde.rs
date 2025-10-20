@@ -8,12 +8,12 @@ fn test_deserialize_from_string() {
     {
         let quantity: DynQuantity<f64> = serde_yaml::from_str("1 mA").unwrap();
         assert_eq!(quantity.value, 1e-3);
-        assert_eq!(quantity.exponents.ampere, 1);
+        assert_eq!(quantity.unit.ampere, 1);
     }
     {
         let quantity: DynQuantity<Complex<f64>> = serde_yaml::from_str("(1+2i) kg^2").unwrap();
         assert_eq!(quantity.value, Complex::new(1.0, 2.0));
-        assert_eq!(quantity.exponents.kilogram, 2);
+        assert_eq!(quantity.unit.kilogram, 2);
     }
 }
 

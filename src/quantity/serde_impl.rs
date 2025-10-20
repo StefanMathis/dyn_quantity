@@ -6,18 +6,106 @@ implements [`TryFrom<DynQuantity>`]. See the docstring of [`DynQuantity`] for an
 overview over all possible representations.
 */
 
+#[cfg(feature = "from_str")]
+use std::str::FromStr;
+
+use serde::ser::{Serialize, SerializeStruct, Serializer};
+
+use super::F64RealOrComplex;
+use crate::error::{ConversionError, ParseError};
+use crate::unit::Unit;
+
+impl<V> Serialize for DynQuantity<V>
+where
+    V: F64RealOrComplex + Serialize,
+{
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let mut state = serializer.serialize_struct("DynQuantity", 2)?;
+        state.serialize_field("value", &self.value)?;
+        state.serialize_field("exponents", &self.unit)?;
+        state.end()
+    }
+}
+
+impl<'de, V> Deserialize<'de> for DynQuantity<V>
+where
+    V: F64RealOrComplex + Deserialize<'de>,
+{
+    fn deserialize<D>(deserializer: D) -> Result<DynQuantity<V>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let variants = QuantityVariants::<V>::deserialize(deserializer)?;
+        variants.try_into().map_err(serde::de::Error::custom)
+    }
+}
+
+/**
+A [`DynQuantity`] can be deserialized a couple of different representations.
+ */
+#[derive(DeserializeUntaggedVerboseError)]
+enum QuantityVariants<V>
+where
+    V: F64RealOrComplex,
+{
+    /**
+    Native representation of [`DynQuantity`] (via an alias struct in order
+    to avoid infinite recursion)-
+     */
+    Quantity(QuantityAlias<V>),
+    /**
+    String representation using the [`std::str::FromStr`] implementation for
+    [`DynQuantity`].
+     */
+    #[cfg(feature = "from_str")]
+    String(String),
+    /**
+    A value without any units - in that case, the unit exponents are assumed
+    to be zero and the value to be dimensionless.
+     */
+    Value(V),
+}
+
+#[derive(serde::Deserialize)]
+pub(super) struct QuantityAlias<V: F64RealOrComplex> {
+    value: V,
+    unit: Unit,
+}
+
+impl<V: F64RealOrComplex> TryFrom<QuantityVariants<V>> for DynQuantity<V> {
+    type Error = ParseError;
+
+    fn try_from(variant: QuantityVariants<V>) -> Result<Self, Self::Error> {
+        match variant {
+            QuantityVariants::Quantity(variant) => {
+                return Ok(Self {
+                    value: variant.value,
+                    unit: variant.unit,
+                });
+            }
+            #[cfg(feature = "from_str")]
+            QuantityVariants::String(string) => {
+                return Self::from_str(&string);
+            }
+            QuantityVariants::Value(value) => {
+                return Ok(Self {
+                    value,
+                    unit: Unit::default(),
+                });
+            }
+        }
+    }
+}
+
 use std::marker::PhantomData;
 
 use crate::DynQuantity;
 use deserialize_untagged_verbose_error::DeserializeUntaggedVerboseError;
 use num::Complex;
 use serde::{Deserialize, Deserializer, de::DeserializeOwned};
-
-#[cfg(feature = "from_str")]
-use crate::{ConversionError, UnitExponents};
-
-#[cfg(feature = "from_str")]
-use std::str::FromStr;
 
 #[derive(DeserializeUntaggedVerboseError)]
 enum NumberOrString<T> {
@@ -349,7 +437,7 @@ where
                     // bracket of the vector "]". The slice before the closing
                     // bracket can then be deserialized as a vector of floats,
                     // while the slice behind the closing bracket can be
-                    // interpreted as UnitExponents.
+                    // interpreted as Unit.
                     match string.find(']') {
                         Some(byte) => {
                             if let Some(quantity_str) = string.get(byte + 1..) {
@@ -363,10 +451,7 @@ where
                             } else {
                                 return parse_vec(
                                     &string,
-                                    &DynQuantity::new(
-                                        Complex::new(1.0, 0.0),
-                                        UnitExponents::default(),
-                                    ),
+                                    &DynQuantity::new(Complex::new(1.0, 0.0), Unit::default()),
                                 )
                                 .map(Some)
                                 .map_err(serde::de::Error::custom);
@@ -459,7 +544,7 @@ where
                     NumberOrString::String(string) => {
                         let first_element =
                             DynQuantity::from_str(&string).map_err(serde::de::Error::custom)?;
-                        let first_element_unit = first_element.exponents.clone();
+                        let first_element_unit = first_element.unit.clone();
                         let output_element =
                             first_element.try_into().map_err(serde::de::Error::custom)?;
                         vec.0.push(output_element);
@@ -475,11 +560,11 @@ where
                                 NumberOrString::String(string) => {
                                     let element = DynQuantity::<Complex<f64>>::from_str(&string)
                                         .map_err(serde::de::Error::custom)?;
-                                    if element.exponents != first_element_unit {
+                                    if element.unit != first_element_unit {
                                         return Err(serde::de::Error::custom(
                                             ConversionError::UnitMismatch {
                                                 expected: first_element_unit,
-                                                found: element.exponents,
+                                                found: element.unit,
                                             },
                                         ));
                                     }
@@ -523,7 +608,7 @@ mod tests {
             match value {
                 NumberOrString::Number(value) => {
                     assert_eq!(value.value, 1.0);
-                    assert_eq!(value.exponents.ampere, 1);
+                    assert_eq!(value.unit.ampere, 1);
                 }
                 NumberOrString::String(_) => unreachable!(),
             }
@@ -535,7 +620,7 @@ mod tests {
                 NumberOrString::Number(value) => {
                     assert_eq!(value.value.re, 1.0);
                     assert_eq!(value.value.im, 0.0);
-                    assert_eq!(value.exponents.ampere, 1);
+                    assert_eq!(value.unit.ampere, 1);
                 }
                 NumberOrString::String(_) => unreachable!(),
             }

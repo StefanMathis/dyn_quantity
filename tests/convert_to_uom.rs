@@ -58,7 +58,7 @@ fn test_conversion_complex() {
 #[test]
 fn test_unit_exponents_from_uom() {
     {
-        let exponents = Power::as_unit_exponents();
+        let exponents = Power::unit_from_type();
         assert_eq!(exponents.second, -3);
         assert_eq!(exponents.meter, 2);
         assert_eq!(exponents.kilogram, 1);
@@ -68,7 +68,7 @@ fn test_unit_exponents_from_uom() {
         assert_eq!(exponents.mol, 0);
     }
     {
-        let exponents = ElectricCurrent::as_unit_exponents();
+        let exponents = ElectricCurrent::unit_from_type();
         assert_eq!(exponents.second, 0);
         assert_eq!(exponents.meter, 0);
         assert_eq!(exponents.kilogram, 0);

@@ -9,8 +9,15 @@ In constrast, conversion from a [`Quantity`] to a [`DynQuantity`] is infallible
 and is therefore realized via a [`From`] implementation.
 */
 
+use num::{Zero, complex::Complex};
+use uom::si::*;
+
+use super::{DynQuantity, F64RealOrComplex};
+use crate::error::{ConversionError, NotConvertibleFromComplexF64};
+use crate::unit::Unit;
+
 #[cfg(feature = "uom")]
-impl<L, M, T, I, Th, N, J, K> crate::AsUnitExponents
+impl<L, M, T, I, Th, N, J, K> crate::unit::UnitFromType
     for uom::si::Quantity<uom::si::ISQ<L, M, T, I, Th, N, J, K>, uom::si::SI<f64>, f64>
 where
     L: uom::typenum::Integer,
@@ -22,8 +29,8 @@ where
     J: uom::typenum::Integer,
     K: ?Sized,
 {
-    fn as_unit_exponents() -> UnitExponents {
-        return UnitExponents {
+    fn unit_from_type() -> Unit {
+        return Unit {
             second: T::to_i32(),
             meter: L::to_i32(),
             kilogram: M::to_i32(),
@@ -34,13 +41,6 @@ where
         };
     }
 }
-
-use num::{Zero, complex::Complex};
-use uom::si::*;
-
-use crate::{
-    ConversionError, DynQuantity, F64RealOrComplex, NotConvertibleFromComplexF64, UnitExponents,
-};
 
 impl<L, M, T, I, Th, N, J, K, V> TryFrom<DynQuantity<V>>
     for uom::si::Quantity<uom::si::ISQ<L, M, T, I, Th, N, J, K>, uom::si::SI<f64>, f64>
@@ -59,7 +59,7 @@ where
 
     fn try_from(quantity: DynQuantity<V>) -> Result<Self, Self::Error> {
         // Check dimensional correctness (compare runtime to compile-time unit exponents)
-        let expected = UnitExponents {
+        let expected = Unit {
             second: T::to_i32(),
             meter: L::to_i32(),
             kilogram: M::to_i32(),
@@ -68,10 +68,10 @@ where
             mol: N::to_i32(),
             candela: J::to_i32(),
         };
-        if expected != quantity.exponents {
+        if expected != quantity.unit {
             return Err(ConversionError::UnitMismatch {
                 expected,
-                found: quantity.exponents,
+                found: quantity.unit,
             });
         }
 
@@ -118,7 +118,7 @@ where
 
     fn try_from(quantity: DynQuantity<V>) -> Result<Self, Self::Error> {
         // Check dimensional correctness (compare runtime to compile-time unit exponents)
-        let expected = UnitExponents {
+        let expected = Unit {
             second: T::to_i32(),
             meter: L::to_i32(),
             kilogram: M::to_i32(),
@@ -127,10 +127,10 @@ where
             mol: N::to_i32(),
             candela: J::to_i32(),
         };
-        if expected != quantity.exponents {
+        if expected != quantity.unit {
             return Err(ConversionError::UnitMismatch {
                 expected,
-                found: quantity.exponents,
+                found: quantity.unit,
             });
         }
 
@@ -164,7 +164,7 @@ where
     fn from(
         quantitiy: uom::si::Quantity<uom::si::ISQ<L, M, T, I, Th, N, J, K>, uom::si::SI<f64>, f64>,
     ) -> Self {
-        let exponents = UnitExponents {
+        let exponents = Unit {
             second: T::to_i32(),
             meter: L::to_i32(),
             kilogram: M::to_i32(),
@@ -207,7 +207,7 @@ where
     ) -> Result<Self, Self::Error> {
         let value = V::try_from_complexf64(quantitiy.value)?;
 
-        let exponents = UnitExponents {
+        let exponents = Unit {
             second: T::to_i32(),
             meter: L::to_i32(),
             kilogram: M::to_i32(),

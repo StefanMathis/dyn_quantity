@@ -146,13 +146,13 @@ bracket is allowed
 ```
 use std::str::FromStr;
 use num::Complex;
-use dyn_quantity::{DynQuantity, UnitExponents};
+use dyn_quantity::{DynQuantity, Unit};
 
 let quantity = DynQuantity::<f64>::from_str("1 kA / m * 3.14 m^2").expect("valid string");
 assert_eq!(quantity.value, 3140.0);
 assert_eq!(
-    quantity.exponents,
-    UnitExponents {
+    quantity.unit,
+    Unit {
         second: 0,
         meter: 1,
         kilogram: 0,
@@ -166,8 +166,8 @@ assert_eq!(
 let quantity = DynQuantity::<f64>::from_str("3e9((0.5 / kg - 1.5 / kg)) ms^3 + 2 s^3/kg").expect("valid string");
 assert_eq!(quantity.value, -1.0);
 assert_eq!(
-    quantity.exponents,
-    UnitExponents {
+    quantity.unit,
+    Unit {
         second: 3,
         meter: 0,
         kilogram: -1,
@@ -181,8 +181,8 @@ assert_eq!(
 let quantity = DynQuantity::<Complex<f64>>::from_str("(1 A + 2i A)^2").expect("valid string");
 assert_eq!(quantity.value, Complex::new(-3.0, 4.0));
 assert_eq!(
-    quantity.exponents,
-    UnitExponents {
+    quantity.unit,
+    Unit {
         second: 0,
         meter: 0,
         kilogram: 0,
@@ -198,8 +198,8 @@ assert_eq!(
 let quantity = DynQuantity::<f64>::from_str("(2i)^2").expect("valid string");
 assert_eq!(quantity.value, -4.0);
 assert_eq!(
-    quantity.exponents,
-    UnitExponents {
+    quantity.unit,
+    Unit {
         second: 0,
         meter: 0,
         kilogram: 0,
@@ -244,7 +244,8 @@ use std::{
     str::FromStr,
 };
 
-use crate::*;
+use super::{DynQuantity, F64RealOrComplex};
+use crate::error::{ParseError, ParseErrorReason};
 
 impl<V: F64RealOrComplex> FromStr for DynQuantity<V> {
     type Err = ParseError;
@@ -252,7 +253,7 @@ impl<V: F64RealOrComplex> FromStr for DynQuantity<V> {
         let dyn_quantity = from_str_complexf64(s)?;
         match V::try_from_complexf64(dyn_quantity.value) {
             Ok(value) => {
-                return Ok(DynQuantity::new(value, dyn_quantity.exponents));
+                return Ok(DynQuantity::new(value, dyn_quantity.unit));
             }
             Err(conversion_error) => {
                 return Err(ParseError {
@@ -475,7 +476,7 @@ fn from_str_complexf64(s: &str) -> Result<DynQuantity<Complex<f64>>, ParseError>
             }
             Token::Pi(exponents) => {
                 adjust(&mut active_quantity, |quantity| {
-                    quantity.value *= PI.powi(exponents.unit) * 10.0.powi(exponents.exponent());
+                    quantity.value *= PI.powi(exponents.unit) * 10f64.powi(exponents.exponent());
                 });
             }
             Token::LeftBracket => {
@@ -585,181 +586,181 @@ fn from_str_complexf64(s: &str) -> Result<DynQuantity<Complex<f64>>, ParseError>
             }
             Token::PowerOfTen(exponent) => {
                 if let Some(quantity) = active_quantity.as_mut() {
-                    quantity.value *= 10.0.powi(exponent);
+                    quantity.value *= 10f64.powi(exponent);
                 } else {
                     active_quantity = Some(DynQuantity::new(
-                        Complex::new(10.0.powi(exponent), 0.0),
+                        Complex::new(10f64.powi(exponent), 0.0),
                         Default::default(),
                     ));
                 }
             }
             Token::Second(exponents) => {
                 adjust(&mut active_quantity, |quantity| {
-                    quantity.exponents.second += exponents.unit;
-                    quantity.value *= 10.0.powi(exponents.exponent());
+                    quantity.unit.second += exponents.unit;
+                    quantity.value *= 10f64.powi(exponents.exponent());
                 });
             }
             Token::Meter(exponents) => {
                 adjust(&mut active_quantity, |quantity| {
-                    quantity.exponents.meter += exponents.unit;
-                    quantity.value *= 10.0.powi(exponents.exponent());
+                    quantity.unit.meter += exponents.unit;
+                    quantity.value *= 10f64.powi(exponents.exponent());
                 });
             }
             Token::Gram(mut exponents) => {
                 adjust(&mut active_quantity, |quantity| {
-                    quantity.exponents.kilogram += exponents.unit;
+                    quantity.unit.kilogram += exponents.unit;
                     // Special treatment of gram: The prefix needs to be reduced by 3, since the SI system works in kilogram
                     exponents.prefix -= 3;
-                    quantity.value *= 10.0.powi(exponents.exponent());
+                    quantity.value *= 10f64.powi(exponents.exponent());
                 });
             }
             Token::Ampere(exponents) => {
                 adjust(&mut active_quantity, |quantity| {
-                    quantity.exponents.ampere += exponents.unit;
-                    quantity.value *= 10.0.powi(exponents.exponent());
+                    quantity.unit.ampere += exponents.unit;
+                    quantity.value *= 10f64.powi(exponents.exponent());
                 });
             }
             Token::Kelvin(exponents) => {
                 adjust(&mut active_quantity, |quantity| {
-                    quantity.exponents.kelvin += exponents.unit;
-                    quantity.value *= 10.0.powi(exponents.exponent());
+                    quantity.unit.kelvin += exponents.unit;
+                    quantity.value *= 10f64.powi(exponents.exponent());
                 });
             }
             Token::Mol(exponents) => {
                 adjust(&mut active_quantity, |quantity| {
-                    quantity.exponents.mol += exponents.unit;
-                    quantity.value *= 10.0.powi(exponents.exponent());
+                    quantity.unit.mol += exponents.unit;
+                    quantity.value *= 10f64.powi(exponents.exponent());
                 });
             }
             Token::Candela(exponents) => {
                 adjust(&mut active_quantity, |quantity| {
-                    quantity.exponents.candela += exponents.unit;
-                    quantity.value *= 10.0.powi(exponents.exponent());
+                    quantity.unit.candela += exponents.unit;
+                    quantity.value *= 10f64.powi(exponents.exponent());
                 });
             }
             Token::Celsius(exponents) => {
                 adjust(&mut active_quantity, |quantity| {
-                    quantity.exponents.kelvin += exponents.unit;
+                    quantity.unit.kelvin += exponents.unit;
                     // Special treatment of celsius: The value needs to be corrected by an offset of -273.15 to the power of the unit exponent
                     quantity.value += (273.15f64).powi(exponents.unit);
-                    quantity.value *= 10.0.powi(exponents.exponent());
+                    quantity.value *= 10f64.powi(exponents.exponent());
                 });
             }
             Token::Newton(exponents) => {
                 adjust(&mut active_quantity, |quantity| {
-                    quantity.exponents.kilogram += exponents.unit;
-                    quantity.exponents.meter += exponents.unit;
-                    quantity.exponents.second -= 2 * exponents.unit;
-                    quantity.value *= 10.0.powi(exponents.exponent());
+                    quantity.unit.kilogram += exponents.unit;
+                    quantity.unit.meter += exponents.unit;
+                    quantity.unit.second -= 2 * exponents.unit;
+                    quantity.value *= 10f64.powi(exponents.exponent());
                 });
             }
             Token::Watt(exponents) => {
                 adjust(&mut active_quantity, |quantity| {
-                    quantity.exponents.kilogram += exponents.unit;
-                    quantity.exponents.meter += 2 * exponents.unit;
-                    quantity.exponents.second -= 3 * exponents.unit;
-                    quantity.value *= 10.0.powi(exponents.exponent());
+                    quantity.unit.kilogram += exponents.unit;
+                    quantity.unit.meter += 2 * exponents.unit;
+                    quantity.unit.second -= 3 * exponents.unit;
+                    quantity.value *= 10f64.powi(exponents.exponent());
                 });
             }
             Token::Joule(exponents) => {
                 adjust(&mut active_quantity, |quantity| {
-                    quantity.exponents.kilogram += exponents.unit;
-                    quantity.exponents.meter += 2 * exponents.unit;
-                    quantity.exponents.second -= 2 * exponents.unit;
-                    quantity.value *= 10.0.powi(exponents.exponent());
+                    quantity.unit.kilogram += exponents.unit;
+                    quantity.unit.meter += 2 * exponents.unit;
+                    quantity.unit.second -= 2 * exponents.unit;
+                    quantity.value *= 10f64.powi(exponents.exponent());
                 });
             }
             Token::Volt(exponents) => {
                 adjust(&mut active_quantity, |quantity| {
-                    quantity.exponents.kilogram += exponents.unit;
-                    quantity.exponents.meter += 2 * exponents.unit;
-                    quantity.exponents.ampere -= exponents.unit;
-                    quantity.exponents.second -= 3 * exponents.unit;
-                    quantity.value *= 10.0.powi(exponents.exponent());
+                    quantity.unit.kilogram += exponents.unit;
+                    quantity.unit.meter += 2 * exponents.unit;
+                    quantity.unit.ampere -= exponents.unit;
+                    quantity.unit.second -= 3 * exponents.unit;
+                    quantity.value *= 10f64.powi(exponents.exponent());
                 });
             }
             Token::Weber(exponents) => {
                 adjust(&mut active_quantity, |quantity| {
-                    quantity.exponents.kilogram += exponents.unit;
-                    quantity.exponents.meter += 2 * exponents.unit;
-                    quantity.exponents.ampere -= exponents.unit;
-                    quantity.exponents.second -= 2 * exponents.unit;
-                    quantity.value *= 10.0.powi(exponents.exponent());
+                    quantity.unit.kilogram += exponents.unit;
+                    quantity.unit.meter += 2 * exponents.unit;
+                    quantity.unit.ampere -= exponents.unit;
+                    quantity.unit.second -= 2 * exponents.unit;
+                    quantity.value *= 10f64.powi(exponents.exponent());
                 });
             }
             Token::Tesla(exponents) => {
                 adjust(&mut active_quantity, |quantity| {
-                    quantity.exponents.kilogram += exponents.unit;
-                    quantity.exponents.ampere -= exponents.unit;
-                    quantity.exponents.second -= 2 * exponents.unit;
-                    quantity.value *= 10.0.powi(exponents.exponent());
+                    quantity.unit.kilogram += exponents.unit;
+                    quantity.unit.ampere -= exponents.unit;
+                    quantity.unit.second -= 2 * exponents.unit;
+                    quantity.value *= 10f64.powi(exponents.exponent());
                 });
             }
             Token::Henry(exponents) => {
                 adjust(&mut active_quantity, |quantity| {
-                    quantity.exponents.kilogram += exponents.unit;
-                    quantity.exponents.meter += 2 * exponents.unit;
-                    quantity.exponents.ampere -= 2 * exponents.unit;
-                    quantity.exponents.second -= 2 * exponents.unit;
-                    quantity.value *= 10.0.powi(exponents.exponent());
+                    quantity.unit.kilogram += exponents.unit;
+                    quantity.unit.meter += 2 * exponents.unit;
+                    quantity.unit.ampere -= 2 * exponents.unit;
+                    quantity.unit.second -= 2 * exponents.unit;
+                    quantity.value *= 10f64.powi(exponents.exponent());
                 });
             }
             Token::Hertz(exponents) => {
                 adjust(&mut active_quantity, |quantity| {
-                    quantity.exponents.second -= exponents.unit;
-                    quantity.value *= 10.0.powi(exponents.exponent());
+                    quantity.unit.second -= exponents.unit;
+                    quantity.value *= 10f64.powi(exponents.exponent());
                 });
             }
             Token::Siemens(exponents) => {
                 adjust(&mut active_quantity, |quantity| {
-                    quantity.exponents.kilogram -= exponents.unit;
-                    quantity.exponents.meter -= 2 * exponents.unit;
-                    quantity.exponents.second += 3 * exponents.unit;
-                    quantity.exponents.ampere += 2 * exponents.unit;
-                    quantity.value *= 10.0.powi(exponents.exponent());
+                    quantity.unit.kilogram -= exponents.unit;
+                    quantity.unit.meter -= 2 * exponents.unit;
+                    quantity.unit.second += 3 * exponents.unit;
+                    quantity.unit.ampere += 2 * exponents.unit;
+                    quantity.value *= 10f64.powi(exponents.exponent());
                 });
             }
             Token::RotationsPerMinute(exponents) => {
                 adjust(&mut active_quantity, |quantity| {
-                    quantity.exponents.second -= exponents.unit;
+                    quantity.unit.second -= exponents.unit;
                     quantity.value *=
-                        (1.0f64 / 60.0f64).powi(exponents.unit) * 10.0.powi(exponents.exponent());
+                        (1.0f64 / 60.0f64).powi(exponents.unit) * 10f64.powi(exponents.exponent());
                 });
             }
             Token::Degree(exponents) => {
                 adjust(&mut active_quantity, |quantity| {
                     quantity.value *=
-                        (PI / 180.0).powi(exponents.unit) * 10.0.powi(exponents.exponent());
+                        (PI / 180.0).powi(exponents.unit) * 10f64.powi(exponents.exponent());
                 });
             }
             Token::Radians(exponents) => {
                 adjust(&mut active_quantity, |quantity| {
-                    quantity.value *= 10.0.powi(exponents.exponent());
+                    quantity.value *= 10f64.powi(exponents.exponent());
                 });
             }
             Token::Ohm(exponents) | Token::Omega(exponents) => {
                 adjust(&mut active_quantity, |quantity| {
-                    quantity.exponents.kilogram += exponents.unit;
-                    quantity.exponents.meter += 2 * exponents.unit;
-                    quantity.exponents.second -= 3 * exponents.unit;
-                    quantity.exponents.ampere -= 2 * exponents.unit;
-                    quantity.value *= 10.0.powi(exponents.exponent());
+                    quantity.unit.kilogram += exponents.unit;
+                    quantity.unit.meter += 2 * exponents.unit;
+                    quantity.unit.second -= 3 * exponents.unit;
+                    quantity.unit.ampere -= 2 * exponents.unit;
+                    quantity.value *= 10f64.powi(exponents.exponent());
                 });
             }
             Token::NewtonMeter(exponents) => {
                 adjust(&mut active_quantity, |quantity| {
-                    quantity.exponents.kilogram += exponents.unit;
-                    quantity.exponents.meter += 2 * exponents.unit;
-                    quantity.exponents.second -= 2 * exponents.unit;
-                    quantity.value *= 10.0.powi(exponents.exponent());
+                    quantity.unit.kilogram += exponents.unit;
+                    quantity.unit.meter += 2 * exponents.unit;
+                    quantity.unit.second -= 2 * exponents.unit;
+                    quantity.value *= 10f64.powi(exponents.exponent());
                 });
             }
             Token::Ton(mut exponents) => {
                 adjust(&mut active_quantity, |quantity| {
-                    quantity.exponents.kilogram += exponents.unit;
+                    quantity.unit.kilogram += exponents.unit;
                     // Special treatment of gram: The prefix needs to be increased by 3
                     exponents.prefix += 3;
-                    quantity.value *= 10.0.powi(exponents.exponent());
+                    quantity.value *= 10f64.powi(exponents.exponent());
                 });
             }
         }
