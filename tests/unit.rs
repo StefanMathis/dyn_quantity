@@ -1,10 +1,10 @@
-use dyn_quantity::{CommonUnits, Unit};
+use dyn_quantity::{PredefUnit, Unit};
 
 #[test]
 fn test_multiplication() {
     {
-        let first: Unit = CommonUnits::ElectricCurrent.into();
-        let second: Unit = CommonUnits::Length.into();
+        let first: Unit = PredefUnit::ElectricCurrent.into();
+        let second: Unit = PredefUnit::Length.into();
         let result = first * second;
         assert_eq!(result.ampere, 1);
         assert_eq!(result.meter, 1);
@@ -14,8 +14,8 @@ fn test_multiplication() {
 #[test]
 fn test_division() {
     {
-        let first: Unit = CommonUnits::ElectricCurrent.into();
-        let second: Unit = CommonUnits::Length.into();
+        let first: Unit = PredefUnit::ElectricCurrent.into();
+        let second: Unit = PredefUnit::Length.into();
         let result = first / second;
         assert_eq!(result.ampere, 1);
         assert_eq!(result.meter, -1);
@@ -25,7 +25,7 @@ fn test_division() {
 #[test]
 fn test_serde() {
     {
-        let unit: Unit = CommonUnits::ElectricCurrent.into();
+        let unit: Unit = PredefUnit::ElectricCurrent.into();
         assert_eq!(unit.ampere, 1);
         let str = serde_yaml::to_string(&unit).unwrap();
         let de_unit: Unit = serde_yaml::from_str(&str).unwrap();

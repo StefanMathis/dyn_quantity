@@ -1,11 +1,11 @@
 dyn_quantity
 ============
 
-[`DynQuantity`]: https://docs.rs/dyn_quantity/0.3.0/dyn_quantity/struct.DynQuantity.html
-[`UnitExponents`]: https://docs.rs/dyn_quantity/0.3.0/dyn_quantity/struct.UnitExponents.html
+[`DynQuantity`]: https://docs.rs/dyn_quantity/0.4.0/dyn_quantity/struct.DynQuantity.html
+[`UnitExponents`]: https://docs.rs/dyn_quantity/0.4.0/dyn_quantity/struct.UnitExponents.html
 [`Quantity`]: https://docs.rs/uom/latest/uom/si/struct.Quantity.html
-[`from_str`]: https://docs.rs/dyn_quantity/0.3.0/dyn_quantity/from_str/index.html
-[`deserialize_with`]: https://docs.rs/dyn_quantity/0.3.0/dyn_quantity/deserialize_with/index.html
+[`from_str`]: https://docs.rs/dyn_quantity/0.4.0/dyn_quantity/from_str/index.html
+[`deserialize_with`]: https://docs.rs/dyn_quantity/0.4.0/dyn_quantity/deserialize_with/index.html
 [`FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
 [dyn_quantity_lexer]: https://docs.rs/dyn_quantity_lexer/latest/dyn_quantity_lexer/index.html
 
@@ -33,13 +33,13 @@ let quant = DynQuantity::<f64>::from_str("4e2 pi mWb / (2*s^3)^2").expect("valid
 assert!((quant.value - 0.31459) < 1e-5);
 
 // The SI base units exponents of "Wb / (s^3)^2" are:
-assert_eq!(quant.exponents.second, -8);
-assert_eq!(quant.exponents.meter, 2);
-assert_eq!(quant.exponents.kilogram, 1);
-assert_eq!(quant.exponents.ampere, -1);
-assert_eq!(quant.exponents.kelvin, 0);
-assert_eq!(quant.exponents.mol, 0);
-assert_eq!(quant.exponents.candela, 0);
+assert_eq!(quant.unit.second, -8);
+assert_eq!(quant.unit.meter, 2);
+assert_eq!(quant.unit.kilogram, 1);
+assert_eq!(quant.unit.ampere, -1);
+assert_eq!(quant.unit.kelvin, 0);
+assert_eq!(quant.unit.mol, 0);
+assert_eq!(quant.unit.candela, 0);
 ```
 
 The docstring of the [`from_str`] module provides a complete documentation of
@@ -92,10 +92,10 @@ integers, the exponents of the radicand ("input") need to be divisible by the
 degree without remainder:
 
 ```rust
-use dyn_quantity::{DynQuantity, UnitExponents};
+use dyn_quantity::{DynQuantity, Unit};
 
 // Create a DynQuantity from its components.
-let exponents = UnitExponents {
+let exponents = Unit {
     second: 2,
     meter: -4,
     kilogram: 0,
@@ -187,3 +187,7 @@ This crate uses the [logos](https://docs.rs/logos/latest/logos/) crate (inside
 macro at compile time. The disadvantage of this approach is the long compile
 time caused by the procedural macro, hence this feature is hidden behing a
 feature flag.
+
+# Documentation
+
+The full API documentation is available at [https://docs.rs/dyn_quantity/0.4.0/dyn_quantity/](https://docs.rs/dyn_quantity/0.4.0/dyn_quantity/).

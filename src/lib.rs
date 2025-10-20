@@ -7,7 +7,7 @@ pub mod unit;
 
 pub use error::*;
 pub use quantity::DynQuantity;
-pub use unit::{CommonUnits, Unit, UnitFromType};
+pub use unit::{PredefUnit, Unit, UnitFromType};
 
 #[cfg(feature = "serde")]
 pub use quantity::serde_impl::*;

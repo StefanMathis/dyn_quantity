@@ -31,9 +31,18 @@ deserialized. Serialization creates the "standard"
 [`Serialize`] macro.
 
 An [`Unit`] can be deserialized from both its "standard" serialized
-representation and from a [`CommonUnits`] variant:
+representation and from a [`PredefUnit`] variant:
 ```
-Example here
+use dyn_quantity::Unit;
+
+// Direct deserialization
+let str = "---\nsecond: -3\nmeter: 2\nkilogram: 1\nampere: -1\nkelvin: 0\nmol: 0\ncandela: 0";
+let unit_direct: Unit = serde_yaml::from_str(str).unwrap();
+
+// Deserialization from PredefUnit
+let str = "ElectricVoltage";
+let unit_predef: Unit = serde_yaml::from_str(str).unwrap();
+assert_eq!(unit_predef, unit_direct);
 ```
  */
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
@@ -265,22 +274,32 @@ impl UnitFromType for f64 {}
 impl UnitFromType for Complex<f64> {}
 
 /**
-An enum representing common [`Unit`]s.
+An enum representing predefined [`Unit`]s.
 
 This enum serves two purposes:
 * It can be a constructor for [`Unit`] via the [`From`] / [`Into`] implementations:
 ```
-Example here
+use dyn_quantity::{Unit, PredefUnit};
+
+let unit: Unit = PredefUnit::ElectricCurrent.into();
+assert_eq!(unit.ampere, 1);
+
+let unit: Unit = PredefUnit::Area.into();
+assert_eq!(unit.meter, 2);
 ```
 * When deserializing an [`Unit`], it can be used instead of the explicit struct
 implementation:
 ```
-Example here
+use dyn_quantity::Unit;
+
+let str = "Volume";
+let unit: Unit = serde_yaml::from_str(str).unwrap();
+assert_eq!(unit.meter, 3);
 ```
  */
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub enum CommonUnits {
+pub enum PredefUnit {
     /// SI base units representation: s (second)
     Time,
     /// SI base units representation: m (meter)
@@ -333,10 +352,10 @@ pub enum CommonUnits {
     ElectricResistivity,
 }
 
-impl From<CommonUnits> for Unit {
-    fn from(value: CommonUnits) -> Self {
+impl From<PredefUnit> for Unit {
+    fn from(value: PredefUnit) -> Self {
         match value {
-            CommonUnits::Time => Self {
+            PredefUnit::Time => Self {
                 second: 1,
                 meter: 0,
                 kilogram: 0,
@@ -345,7 +364,7 @@ impl From<CommonUnits> for Unit {
                 mol: 0,
                 candela: 0,
             },
-            CommonUnits::Length => Self {
+            PredefUnit::Length => Self {
                 second: 0,
                 meter: 1,
                 kilogram: 0,
@@ -354,7 +373,7 @@ impl From<CommonUnits> for Unit {
                 mol: 0,
                 candela: 0,
             },
-            CommonUnits::Mass => Self {
+            PredefUnit::Mass => Self {
                 second: 0,
                 meter: 0,
                 kilogram: 1,
@@ -363,7 +382,7 @@ impl From<CommonUnits> for Unit {
                 mol: 0,
                 candela: 0,
             },
-            CommonUnits::ElectricCurrent => Self {
+            PredefUnit::ElectricCurrent => Self {
                 second: 0,
                 meter: 0,
                 kilogram: 0,
@@ -372,7 +391,7 @@ impl From<CommonUnits> for Unit {
                 mol: 0,
                 candela: 0,
             },
-            CommonUnits::Temperature => Self {
+            PredefUnit::Temperature => Self {
                 second: 0,
                 meter: 0,
                 kilogram: 0,
@@ -381,7 +400,7 @@ impl From<CommonUnits> for Unit {
                 mol: 0,
                 candela: 0,
             },
-            CommonUnits::AmountOfSubstance => Self {
+            PredefUnit::AmountOfSubstance => Self {
                 second: 0,
                 meter: 0,
                 kilogram: 0,
@@ -390,7 +409,7 @@ impl From<CommonUnits> for Unit {
                 mol: 1,
                 candela: 0,
             },
-            CommonUnits::LuminousIntensity => Self {
+            PredefUnit::LuminousIntensity => Self {
                 second: 0,
                 meter: 0,
                 kilogram: 0,
@@ -399,7 +418,7 @@ impl From<CommonUnits> for Unit {
                 mol: 0,
                 candela: 1,
             },
-            CommonUnits::Area => Self {
+            PredefUnit::Area => Self {
                 second: 0,
                 meter: 2,
                 kilogram: 0,
@@ -408,7 +427,7 @@ impl From<CommonUnits> for Unit {
                 mol: 0,
                 candela: 0,
             },
-            CommonUnits::Volume => Self {
+            PredefUnit::Volume => Self {
                 second: 0,
                 meter: 3,
                 kilogram: 0,
@@ -417,7 +436,7 @@ impl From<CommonUnits> for Unit {
                 mol: 0,
                 candela: 0,
             },
-            CommonUnits::ElectricVoltage => Self {
+            PredefUnit::ElectricVoltage => Self {
                 second: -3,
                 meter: 2,
                 kilogram: 1,
@@ -426,7 +445,7 @@ impl From<CommonUnits> for Unit {
                 mol: 0,
                 candela: 0,
             },
-            CommonUnits::Force => Self {
+            PredefUnit::Force => Self {
                 second: -2,
                 meter: 1,
                 kilogram: 1,
@@ -435,7 +454,7 @@ impl From<CommonUnits> for Unit {
                 mol: 0,
                 candela: 0,
             },
-            CommonUnits::Torque => Self {
+            PredefUnit::Torque => Self {
                 second: -2,
                 meter: 2,
                 kilogram: 1,
@@ -444,7 +463,7 @@ impl From<CommonUnits> for Unit {
                 mol: 0,
                 candela: 0,
             },
-            CommonUnits::Power => Self {
+            PredefUnit::Power => Self {
                 second: -3,
                 meter: 2,
                 kilogram: 1,
@@ -453,7 +472,7 @@ impl From<CommonUnits> for Unit {
                 mol: 0,
                 candela: 0,
             },
-            CommonUnits::Energy => Self {
+            PredefUnit::Energy => Self {
                 second: -2,
                 meter: 2,
                 kilogram: 1,
@@ -462,7 +481,7 @@ impl From<CommonUnits> for Unit {
                 mol: 0,
                 candela: 0,
             },
-            CommonUnits::Frequency => Self {
+            PredefUnit::Frequency => Self {
                 second: -1,
                 meter: 0,
                 kilogram: 0,
@@ -471,7 +490,7 @@ impl From<CommonUnits> for Unit {
                 mol: 0,
                 candela: 0,
             },
-            CommonUnits::Velocity => Self {
+            PredefUnit::Velocity => Self {
                 second: -1,
                 meter: 1,
                 kilogram: 0,
@@ -480,7 +499,7 @@ impl From<CommonUnits> for Unit {
                 mol: 0,
                 candela: 0,
             },
-            CommonUnits::AngularVelocity => Self {
+            PredefUnit::AngularVelocity => Self {
                 second: -1,
                 meter: 0,
                 kilogram: 0,
@@ -489,7 +508,7 @@ impl From<CommonUnits> for Unit {
                 mol: 0,
                 candela: 0,
             },
-            CommonUnits::MagneticFlux => Self {
+            PredefUnit::MagneticFlux => Self {
                 second: -2,
                 meter: 2,
                 kilogram: 1,
@@ -498,7 +517,7 @@ impl From<CommonUnits> for Unit {
                 mol: 0,
                 candela: 0,
             },
-            CommonUnits::MagneticFluxDensity => Self {
+            PredefUnit::MagneticFluxDensity => Self {
                 second: -2,
                 meter: 0,
                 kilogram: 1,
@@ -507,7 +526,7 @@ impl From<CommonUnits> for Unit {
                 mol: 0,
                 candela: 0,
             },
-            CommonUnits::MagneticFieldStrength => Self {
+            PredefUnit::MagneticFieldStrength => Self {
                 second: 0,
                 meter: -1,
                 kilogram: 0,
@@ -516,7 +535,7 @@ impl From<CommonUnits> for Unit {
                 mol: 0,
                 candela: 0,
             },
-            CommonUnits::Inductance => Self {
+            PredefUnit::Inductance => Self {
                 second: -2,
                 meter: 2,
                 kilogram: 1,
@@ -525,7 +544,7 @@ impl From<CommonUnits> for Unit {
                 mol: 0,
                 candela: 0,
             },
-            CommonUnits::ElectricConductance => Self {
+            PredefUnit::ElectricConductance => Self {
                 second: 3,
                 meter: -2,
                 kilogram: -1,
@@ -534,7 +553,7 @@ impl From<CommonUnits> for Unit {
                 mol: 0,
                 candela: 0,
             },
-            CommonUnits::ElectricResistance => Self {
+            PredefUnit::ElectricResistance => Self {
                 second: -3,
                 meter: 2,
                 kilogram: 1,
@@ -543,7 +562,7 @@ impl From<CommonUnits> for Unit {
                 mol: 0,
                 candela: 0,
             },
-            CommonUnits::ElectricConductivity => Self {
+            PredefUnit::ElectricConductivity => Self {
                 second: 3,
                 meter: -3,
                 kilogram: -1,
@@ -552,7 +571,7 @@ impl From<CommonUnits> for Unit {
                 mol: 0,
                 candela: 0,
             },
-            CommonUnits::ElectricResistivity => Self {
+            PredefUnit::ElectricResistivity => Self {
                 second: -3,
                 meter: 3,
                 kilogram: 1,

@@ -4,7 +4,7 @@ It contains the serialization and deserialization implementations for
 [`Unit`].
 */
 
-use super::{CommonUnits, Unit};
+use super::{PredefUnit, Unit};
 use deserialize_untagged_verbose_error::DeserializeUntaggedVerboseError;
 use serde::de::{Deserialize, Deserializer};
 use serde::ser::{Serialize, SerializeStruct, Serializer};
@@ -48,9 +48,9 @@ enum UnitVariants {
      */
     Unit(UnitAlias),
     /**
-    Deserialization from a [`CommonUnits`].
+    Deserialization from a [`PredefUnit`].
      */
-    CommonUnits(CommonUnits),
+    PredefUnit(PredefUnit),
 }
 
 impl<'de> Deserialize<'de> for Unit {
@@ -71,7 +71,7 @@ impl<'de> Deserialize<'de> for Unit {
                     candela: alias.candela,
                 });
             }
-            UnitVariants::CommonUnits(common_units) => {
+            UnitVariants::PredefUnit(common_units) => {
                 return Ok(common_units.into());
             }
         }
