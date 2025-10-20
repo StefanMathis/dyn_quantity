@@ -1,12 +1,12 @@
 dyn_quantity
 ============
 
-[`DynQuantity`]: https://docs.rs/dyn_quantity/0.4.1/dyn_quantity/quantity/struct.DynQuantity.html
-[`Unit`]: https://docs.rs/dyn_quantity/0.4.1/dyn_quantity/unit/struct.Unit.html
+[`DynQuantity`]: https://docs.rs/dyn_quantity/0.4.2/dyn_quantity/quantity/struct.DynQuantity.html
+[`Unit`]: https://docs.rs/dyn_quantity/0.4.2/dyn_quantity/unit/struct.Unit.html
 [`Quantity`]: https://docs.rs/uom/latest/uom/si/struct.Quantity.html
-[`from_str`]: https://docs.rs/dyn_quantity/0.4.1/dyn_quantity/from_str/index.html
-[`deserialize_with`]: https://docs.rs/dyn_quantity/0.4.1/dyn_quantity/deserialize_with/index.html
+[`deserialize_with`]: https://docs.rs/dyn_quantity/0.4.2/dyn_quantity/deserialize_with/index.html
 [`FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
+[`from_str_impl`]: https://docs.rs/dyn_quantity/0.4.2/dyn_quantity/quantity/from_str_impl/index.html
 [dyn_quantity_lexer]: https://docs.rs/dyn_quantity_lexer/latest/dyn_quantity_lexer/index.html
 
 The strong type system of rust allows defining physical quantities as types -
@@ -42,7 +42,7 @@ assert_eq!(quant.unit.mol, 0);
 assert_eq!(quant.unit.candela, 0);
 ```
 
-The docstring of the [`from_str`] module provides a complete documentation of
+The docstring of the [`from_str_impl`] module provides a complete documentation of
 the available parsing syntax.
 
 # Overview
@@ -182,12 +182,16 @@ An important part of any parser is the
 [lexer](https://en.wikipedia.org/wiki/Lexical_analysis), which converts the
 array of characters which make up the string into meaningful tokens. These
 tokens are then later syntactically analyzed and converted to a [`DynQuantity`].
+The full syntax documentation is available at [`from_str_impl`].
+
 This crate uses the [logos](https://docs.rs/logos/latest/logos/) crate (inside
 [dyn_quantity_lexer]) to generate a high-performance lexer via a procedural
 macro at compile time. The disadvantage of this approach is the long compile
 time caused by the procedural macro, hence this feature is hidden behing a
 feature flag.
 
+
+
 # Documentation
 
-The full API documentation is available at [https://docs.rs/dyn_quantity/0.4.1/dyn_quantity/](https://docs.rs/dyn_quantity/0.4.1/dyn_quantity/).
+The full API documentation is available at [https://docs.rs/dyn_quantity/0.4.2/dyn_quantity/](https://docs.rs/dyn_quantity/0.4.2/dyn_quantity/).
