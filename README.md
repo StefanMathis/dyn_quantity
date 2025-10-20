@@ -1,11 +1,11 @@
 dyn_quantity
 ============
 
-[`DynQuantity`]: https://docs.rs/dyn_quantity/0.4.0/dyn_quantity/struct.DynQuantity.html
-[`UnitExponents`]: https://docs.rs/dyn_quantity/0.4.0/dyn_quantity/struct.UnitExponents.html
+[`DynQuantity`]: https://docs.rs/dyn_quantity/0.4.1/dyn_quantity/quantity/struct.DynQuantity.html
+[`Unit`]: https://docs.rs/dyn_quantity/0.4.1/dyn_quantity/unit/struct.Unit.html
 [`Quantity`]: https://docs.rs/uom/latest/uom/si/struct.Quantity.html
-[`from_str`]: https://docs.rs/dyn_quantity/0.4.0/dyn_quantity/from_str/index.html
-[`deserialize_with`]: https://docs.rs/dyn_quantity/0.4.0/dyn_quantity/deserialize_with/index.html
+[`from_str`]: https://docs.rs/dyn_quantity/0.4.1/dyn_quantity/from_str/index.html
+[`deserialize_with`]: https://docs.rs/dyn_quantity/0.4.1/dyn_quantity/deserialize_with/index.html
 [`FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
 [dyn_quantity_lexer]: https://docs.rs/dyn_quantity_lexer/latest/dyn_quantity_lexer/index.html
 
@@ -49,7 +49,7 @@ the available parsing syntax.
 
 This crate is based around the [`DynQuantity`] struct, which represents a
 physical quantity at runtime via its numerical value and the exponents of the
-involved SI base units. The latter are fields of the struct [`UnitExponents`],
+involved SI base units. The latter are fields of the struct [`Unit`],
 which in turn is a field of [`DynQuantity`].
 
 The [`DynQuantity`] offers the following features:
@@ -190,4 +190,4 @@ feature flag.
 
 # Documentation
 
-The full API documentation is available at [https://docs.rs/dyn_quantity/0.4.0/dyn_quantity/](https://docs.rs/dyn_quantity/0.4.0/dyn_quantity/).
+The full API documentation is available at [https://docs.rs/dyn_quantity/0.4.1/dyn_quantity/](https://docs.rs/dyn_quantity/0.4.1/dyn_quantity/).

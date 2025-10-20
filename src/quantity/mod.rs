@@ -13,8 +13,8 @@ use crate::error::{
 };
 use crate::unit::Unit;
 
-#[cfg(feature = "from_str")]
-mod from_str_impl;
+#[cfg(any(feature = "from_str", doc))]
+pub mod from_str_impl;
 
 #[cfg(feature = "serde")]
 pub mod serde_impl;
@@ -152,7 +152,8 @@ at runtime.
 This property is very useful when e.g. parsing a user-provided string to a
 physical quantity. For this case, [`DynQuantity`] implements the
 [`FromStr`](`std::str::FromStr`) trait. The module documentation
-[`from_str`](crate::from_str) has more information regarding the available syntax.
+[`from_str`](crate::quantity::from_str_impl) has more information regarding the
+available syntax.
 
 The `V` generic parameter needs to implement [`F64RealOrComplex`].
 Currently, implementors are [`f64`] and [`Complex<f64>`]. It is possible to
@@ -184,7 +185,7 @@ allows fallible parsing of strings to statically-typed physical quantities.
 If the **serde** feature is enabled, this struct can be serialized and
 deserialized. Serialization creates the "standard"
 [serde](https://crates.io/crates/serde) representation one would expect from the
-[`Serialize`] macro.
+`Serialize` macro.
 
 When deserializing however, multiple options are available:
 1) Using the "standard" serialized representation of a struct. For example, the
@@ -203,8 +204,9 @@ exponents:
 ```
 
 2) Deserializing directly from a string. This uses the [`std::str::FromStr`]
-implementation under the hood, see the [`from_str`](crate::from_str) module
-documentation. Only available if the **from_str** feature is enabled.
+implementation under the hood, see the
+[`from_str`](crate::quantity::from_str_impl) module documentation. Only
+available if the **from_str** feature is enabled.
 3) Deserialize directly from a real or complex value. This option is mainly here
 to allow deserializing a serialized [uom](https://crates.io/crates/uom) quantity
 (whose serialized representation is simply its numerical value without any

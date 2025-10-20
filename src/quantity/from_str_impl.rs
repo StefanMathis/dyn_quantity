@@ -1,23 +1,9 @@
 /*!
-[`DynQuantity`]: crate::DynQuantity
+[`DynQuantity`]: crate::quantity::DynQuantity
 
 # Overview
 
 This module implements [`std::str::FromStr`] for [`DynQuantity`].
-Depending on the feature "no_static_lib", this is realized in two different ways:
-
-### Feature "no_static_lib" is enabled:
-
-The parsing logic is compiled into a static library which is then linked into
-the final binary within the [`std::str::FromStr`] implementation in the module
-[`from_str_ext`].
-
-### Feature "no_static_lib" is disabled:
-
-The parsing logic is directly compiled into the final binary within the
-[`std::str::FromStr`] implementation in the module [`from_str_impl`].
-
-See README.md and `build.rs` for details.
 
 # Syntax
 
@@ -237,12 +223,15 @@ assert!(DynQuantity::<f64>::from_str("1 metre").is_err());
 ```
 */
 
-use ::num::{Complex, Zero};
-use dyn_quantity_lexer::{Logos, Token};
 use std::{
     f64::{INFINITY, NEG_INFINITY, consts::PI},
     str::FromStr,
 };
+
+use ::num::{Complex, Zero};
+
+#[cfg(not(doc))]
+use dyn_quantity_lexer::{Logos, Token};
 
 use super::{DynQuantity, F64RealOrComplex};
 use crate::error::{ParseError, ParseErrorReason};

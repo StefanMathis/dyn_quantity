@@ -1,6 +1,6 @@
 /*!
 This module contains the various errors which can occur when dealing with
-[`DynQuantity`](crate::DynQuantity) and [`Unit`](crate::Unit).
+[`DynQuantity`](crate::DynQuantity) and [`Unit`].
 */
 
 use std::error::Error;
@@ -61,7 +61,8 @@ impl std::fmt::Display for RootError {
 impl std::error::Error for RootError {}
 
 /**
-Error representing a failed attempt to parse a string into a [`DynQuantity`].
+Error representing a failed attempt to parse a string into a
+[`DynQuantity`](crate::quantity::DynQuantity).
  */
 #[derive(Default, Debug, Clone, PartialEq)]
 pub struct ParseError {
@@ -87,7 +88,8 @@ impl std::fmt::Display for ParseError {
 }
 
 /**
-The varying reasons parsing a string to a [`DynQuantity`] can fail.
+The varying reasons parsing a string to a
+[`DynQuantity`](crate::quantity::DynQuantity) can fail.
 This struct is part of [`ParseError`], which contains the information where
 the parsing failed.
  */
@@ -104,7 +106,7 @@ pub enum ParseErrorReason {
     UnbalancedBrackets,
     /// Two numbers without any combining operator are in the string:
     /// - "5 32": Invalid because it is unclear how the numbers should
-    /// combined in the resulting [`DynQuantity`].
+    /// combined in the resulting [`DynQuantity`](crate::quantity::DynQuantity).
     /// - "5 * 32": Valid
     TwoNumbersWithoutOperator,
     /// Two operators without a number inbetween are in the string:
@@ -171,10 +173,11 @@ impl std::error::Error for ParseErrorReason {}
 
 /**
 Error describing a failed attempt to convert a [`Complex<f64>`] into the type
-`V` of [`DynQuantity<V>`].
+`V` of [`DynQuantity<V>`](crate::quantity::DynQuantity).
 
 For example, this error will be returned when trying to parse a string
-representing a complex quantity into a [`DynQuantity<f64>`].
+representing a complex quantity into a
+[`DynQuantity<f64>`](crate::quantity::DynQuantity).
  */
 #[derive(Debug, Clone, PartialEq)]
 pub struct NotConvertibleFromComplexF64 {
@@ -200,9 +203,11 @@ impl std::error::Error for NotConvertibleFromComplexF64 {}
 Error describing a failed attempt to convert between different types representing
 quantities.
 
-This error can e.g. be returned when trying to convert a [`DynQuantity`] to a
+This error can e.g. be returned when trying to convert a
+[`DynQuantity`](crate::quantity::DynQuantity) to a
 [`Quantity`](https://docs.rs/uom/latest/uom/si/struct.Quantity.html) via the
-[`TryFrom`] implementation. See docstring of [`DynQuantity`].
+[`TryFrom`] implementation. See docstring of
+[`DynQuantity`](crate::quantity::DynQuantity).
 */
 #[derive(Debug, Clone, PartialEq)]
 pub enum ConversionError {
