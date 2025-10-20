@@ -1,12 +1,12 @@
 dyn_quantity
 ============
 
-[`DynQuantity`]: https://docs.rs/dyn_quantity/0.4.2/dyn_quantity/quantity/struct.DynQuantity.html
-[`Unit`]: https://docs.rs/dyn_quantity/0.4.2/dyn_quantity/unit/struct.Unit.html
+[`DynQuantity`]: https://docs.rs/dyn_quantity/0.4.3/dyn_quantity/quantity/struct.DynQuantity.html
+[`Unit`]: https://docs.rs/dyn_quantity/0.4.3/dyn_quantity/unit/struct.Unit.html
 [`Quantity`]: https://docs.rs/uom/latest/uom/si/struct.Quantity.html
-[`deserialize_with`]: https://docs.rs/dyn_quantity/0.4.2/dyn_quantity/deserialize_with/index.html
+[`deserialize_with`]: https://docs.rs/dyn_quantity/0.4.3/dyn_quantity/deserialize_with/index.html
 [`FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
-[`from_str_impl`]: https://docs.rs/dyn_quantity/0.4.2/dyn_quantity/quantity/from_str_impl/index.html
+[`from_str_impl`]: https://docs.rs/dyn_quantity/0.4.3/dyn_quantity/quantity/from_str_impl/index.html
 [dyn_quantity_lexer]: https://docs.rs/dyn_quantity_lexer/latest/dyn_quantity_lexer/index.html
 
 The strong type system of rust allows defining physical quantities as types -
@@ -194,4 +194,4 @@ feature flag.
 
 # Documentation
 
-The full API documentation is available at [https://docs.rs/dyn_quantity/0.4.2/dyn_quantity/](https://docs.rs/dyn_quantity/0.4.2/dyn_quantity/).
+The full API documentation is available at [https://docs.rs/dyn_quantity/0.4.3/dyn_quantity/](https://docs.rs/dyn_quantity/0.4.3/dyn_quantity/).

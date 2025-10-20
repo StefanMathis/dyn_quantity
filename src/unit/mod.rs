@@ -45,7 +45,7 @@ let unit_predef: Unit = serde_yaml::from_str(str).unwrap();
 assert_eq!(unit_predef, unit_direct);
 ```
  */
-#[derive(Debug, Clone, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 #[repr(C)]
 pub struct Unit {
     /// Exponent for the SI base unit of time.
@@ -178,6 +178,17 @@ impl Unit {
         self.mol = try_nthroot_inner(&init_exp, self.mol, n)?;
         self.candela = try_nthroot_inner(&init_exp, self.candela, n)?;
         return Ok(self);
+    }
+
+    /// Returns whether [`Unit`] is dimensionless (all exponents are zero) or not.
+    pub fn is_dimensionless(&self) -> bool {
+        return self.second == 0
+            && self.meter == 0
+            && self.kilogram == 0
+            && self.ampere == 0
+            && self.kelvin == 0
+            && self.mol == 0
+            && self.candela == 0;
     }
 }
 

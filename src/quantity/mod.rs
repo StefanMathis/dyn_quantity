@@ -42,8 +42,12 @@ pub trait F64RealOrComplex:
     + std::ops::AddAssign
     + std::ops::SubAssign
     + std::fmt::Display
+    + std::ops::Mul<f64, Output = Self>
     + std::ops::MulAssign
+    + std::ops::MulAssign<f64>
+    + std::ops::Div<f64, Output = Self>
     + std::ops::DivAssign
+    + std::ops::DivAssign<f64>
     + std::fmt::Debug
     + private::Sealed
 {
@@ -227,7 +231,7 @@ exponents:
 
 The three different possibilities are realized via a crate-internal untagged enum.
 */
-#[derive(Debug, Clone, PartialEq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
 #[repr(C)]
 pub struct DynQuantity<V: F64RealOrComplex> {
     /**
@@ -488,6 +492,15 @@ impl<V: F64RealOrComplex> Mul for DynQuantity<V> {
     }
 }
 
+impl<V: F64RealOrComplex> Mul<f64> for DynQuantity<V> {
+    type Output = Self;
+
+    fn mul(mut self, rhs: f64) -> Self::Output {
+        self.mul_assign(rhs);
+        return self;
+    }
+}
+
 impl<V: F64RealOrComplex> MulAssign for DynQuantity<V> {
     fn mul_assign(&mut self, rhs: Self) {
         self.value *= rhs.value;
@@ -495,10 +508,25 @@ impl<V: F64RealOrComplex> MulAssign for DynQuantity<V> {
     }
 }
 
+impl<V: F64RealOrComplex> MulAssign<f64> for DynQuantity<V> {
+    fn mul_assign(&mut self, rhs: f64) {
+        self.value *= rhs;
+    }
+}
+
 impl<V: F64RealOrComplex> Div for DynQuantity<V> {
     type Output = Self;
 
     fn div(mut self, rhs: Self) -> Self::Output {
+        self.div_assign(rhs);
+        return self;
+    }
+}
+
+impl<V: F64RealOrComplex> Div<f64> for DynQuantity<V> {
+    type Output = Self;
+
+    fn div(mut self, rhs: f64) -> Self::Output {
         self.div_assign(rhs);
         return self;
     }
@@ -522,6 +550,23 @@ impl<V: F64RealOrComplex> DivAssign for DynQuantity<V> {
     }
 }
 
+impl<V: F64RealOrComplex> DivAssign<f64> for DynQuantity<V> {
+    fn div_assign(&mut self, rhs: f64) {
+        if self.value.is_infinite() {
+            let mut value: V = self.value / rhs;
+            if value.re().is_nan() {
+                value.set_re_f64(0.0);
+            }
+            if value.im().is_nan() {
+                value.set_im_f64(0.0);
+            }
+            self.value = value;
+        } else {
+            self.value /= rhs;
+        }
+    }
+}
+
 impl TryFrom<DynQuantity<Complex<f64>>> for DynQuantity<f64> {
     type Error = NotConvertibleFromComplexF64;
 
@@ -532,6 +577,50 @@ impl TryFrom<DynQuantity<Complex<f64>>> for DynQuantity<f64> {
             return Err(NotConvertibleFromComplexF64 {
                 source: quantity.value,
                 target_type: "f64",
+            });
+        }
+    }
+}
+
+impl From<f64> for DynQuantity<f64> {
+    fn from(value: f64) -> Self {
+        return DynQuantity::new(value, Default::default());
+    }
+}
+
+impl From<Complex<f64>> for DynQuantity<Complex<f64>> {
+    fn from(value: Complex<f64>) -> Self {
+        return DynQuantity::new(value, Default::default());
+    }
+}
+
+impl TryFrom<DynQuantity<f64>> for f64 {
+    type Error = ConversionError;
+
+    fn try_from(quantity: DynQuantity<f64>) -> Result<Self, Self::Error> {
+        // If the unit is dimensionless, the conversion succeeds, otherwise it fails
+        if quantity.unit.is_dimensionless() {
+            return Ok(quantity.value);
+        } else {
+            return Err(ConversionError::UnitMismatch {
+                expected: Unit::default(),
+                found: quantity.unit,
+            });
+        }
+    }
+}
+
+impl TryFrom<DynQuantity<Complex<f64>>> for Complex<f64> {
+    type Error = ConversionError;
+
+    fn try_from(quantity: DynQuantity<Complex<f64>>) -> Result<Self, Self::Error> {
+        // If the unit is dimensionless, the conversion succeeds, otherwise it fails
+        if quantity.unit.is_dimensionless() {
+            return Ok(quantity.value);
+        } else {
+            return Err(ConversionError::UnitMismatch {
+                expected: Unit::default(),
+                found: quantity.unit,
             });
         }
     }
