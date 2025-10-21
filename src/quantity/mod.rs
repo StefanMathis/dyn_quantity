@@ -577,6 +577,12 @@ impl TryFrom<DynQuantity<Complex<f64>>> for DynQuantity<f64> {
     }
 }
 
+impl From<DynQuantity<f64>> for DynQuantity<Complex<f64>> {
+    fn from(value: DynQuantity<f64>) -> Self {
+        return DynQuantity::new(Complex::new(value.value, 0.0), value.unit);
+    }
+}
+
 impl From<f64> for DynQuantity<f64> {
     fn from(value: f64) -> Self {
         return DynQuantity::new(value, Unit::default());
@@ -605,6 +611,15 @@ impl TryFrom<DynQuantity<f64>> for f64 {
     }
 }
 
+impl TryFrom<DynQuantity<f64>> for Complex<f64> {
+    type Error = ConversionError;
+
+    fn try_from(quantity: DynQuantity<f64>) -> Result<Self, Self::Error> {
+        let re = f64::try_from(quantity)?;
+        return Ok(Complex::new(re, 0.0));
+    }
+}
+
 impl TryFrom<DynQuantity<Complex<f64>>> for Complex<f64> {
     type Error = ConversionError;
 
@@ -617,6 +632,24 @@ impl TryFrom<DynQuantity<Complex<f64>>> for Complex<f64> {
                 expected: Unit::default(),
                 found: quantity.unit,
             });
+        }
+    }
+}
+
+impl TryFrom<DynQuantity<Complex<f64>>> for f64 {
+    type Error = ConversionError;
+
+    fn try_from(quantity: DynQuantity<Complex<f64>>) -> Result<Self, Self::Error> {
+        let c = Complex::<f64>::try_from(quantity)?;
+        if c.im == 0.0 {
+            return Ok(c.re);
+        } else {
+            return Err(ConversionError::NotConvertibleFromComplexF64(
+                NotConvertibleFromComplexF64 {
+                    source: c,
+                    target_type: "f64",
+                },
+            ));
         }
     }
 }
