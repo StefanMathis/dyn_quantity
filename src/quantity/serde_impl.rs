@@ -25,7 +25,7 @@ where
     {
         let mut state = serializer.serialize_struct("DynQuantity", 2)?;
         state.serialize_field("value", &self.value)?;
-        state.serialize_field("exponents", &self.unit)?;
+        state.serialize_field("unit", &self.unit)?;
         state.end()
     }
 }
@@ -72,7 +72,7 @@ where
 }
 
 #[derive(serde::Deserialize)]
-pub(super) struct QuantityAlias<V: F64RealOrComplex> {
+struct QuantityAlias<V: F64RealOrComplex> {
     value: V,
     unit: Unit,
 }

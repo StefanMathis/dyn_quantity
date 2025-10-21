@@ -4,6 +4,17 @@ use num::Complex;
 use serde::Deserialize;
 
 #[test]
+fn test_serialize_and_deserialize() {
+    {
+        let quantity = DynQuantity::new(1.0, Unit::default());
+        let string = serde_yaml::to_string(&quantity).unwrap();
+        println!("{string}");
+        let quantity_de = serde_yaml::from_str(&string).unwrap();
+        assert_eq!(quantity, quantity_de);
+    }
+}
+
+#[test]
 fn test_deserialize_from_string() {
     {
         let quantity: DynQuantity<f64> = serde_yaml::from_str("1 mA").unwrap();
@@ -25,7 +36,7 @@ fn test_deserialize_and_serialize() {
         let expected = indoc! {"
         ---
         value: 2.0
-        exponents:
+        unit:
           second: 0
           meter: 1
           kilogram: 0
@@ -41,7 +52,7 @@ fn test_deserialize_and_serialize() {
         let res = serde_yaml::to_string(&quantity).unwrap();
         assert_eq!(
             &res,
-            "---\nvalue:\n  - 1.0\n  - 2.0\nexponents:\n  second: 0\n  meter: 0\n  kilogram: 2\n  ampere: 0\n  kelvin: 0\n  mol: 0\n  candela: 0\n"
+            "---\nvalue:\n  - 1.0\n  - 2.0\nunit:\n  second: 0\n  meter: 0\n  kilogram: 2\n  ampere: 0\n  kelvin: 0\n  mol: 0\n  candela: 0\n"
         );
     }
 }
