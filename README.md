@@ -1,19 +1,19 @@
 dyn_quantity
 ============
 
-[`DynQuantity`]: https://docs.rs/dyn_quantity/0.5.0/dyn_quantity/quantity/struct.DynQuantity.html
-[`Unit`]: https://docs.rs/dyn_quantity/0.5.0/dyn_quantity/unit/struct.Unit.html
+[`DynQuantity`]: https://docs.rs/dyn_quantity/0.5.1/dyn_quantity/quantity/struct.DynQuantity.html
+[`Unit`]: https://docs.rs/dyn_quantity/0.5.1/dyn_quantity/unit/struct.Unit.html
 [`Quantity`]: https://docs.rs/uom/latest/uom/si/struct.Quantity.html
-[`deserialize_with`]: https://docs.rs/dyn_quantity/0.5.0/dyn_quantity/deserialize_with/index.html
+[`deserialize_with`]: https://docs.rs/dyn_quantity/0.5.1/dyn_quantity/deserialize_with/index.html
 [`FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
-[`from_str_impl`]: https://docs.rs/dyn_quantity/0.5.0/dyn_quantity/quantity/from_str_impl/index.html
+[`from_str_impl`]: https://docs.rs/dyn_quantity/0.5.1/dyn_quantity/quantity/from_str_impl/index.html
 [dyn_quantity_lexer]: https://docs.rs/dyn_quantity_lexer/latest/dyn_quantity_lexer/index.html
 
 The strong type system of rust allows defining physical quantities as types -
 see for example the [uom](https://docs.rs/uom/latest/uom/) crate. This is very
 useful to evaluate the correctness of calculations at compile time. Sometimes
 however, the type of a physical quantity is not known until runtime - for
-example, when parsing a user-provided string (requires feature  `from_str` to
+example, when parsing a user-provided string (requires feature `from_str` to
 be enabled). This is where this crate comes into play:
 
 ```rust
@@ -55,11 +55,11 @@ which in turn is a field of [`DynQuantity`].
 The [`DynQuantity`] offers the following features:
 * Performing simple arithmetic operations on quantities where the units are
 only known at runtime.
-* Conversion into statically-typed quantities (requires the  `uom` feature to
+* Conversion into statically-typed quantities (requires the `uom` feature to
 be enabled).
 * Serialization and deserialization, in case of the latter from multiple
-different representations (requires the  `serde` feature to be enabled).
-* Parsing quantities at runtime from strings (requires the  `from_str` feature
+different representations (requires the `serde` feature to be enabled).
+* Parsing quantities at runtime from strings (requires the `from_str` feature
 to be enabled).
 
 # Arithmetic operations
@@ -116,7 +116,7 @@ assert!(quantity.try_nthroot(4).is_err());
 
 # Conversion into statically-typed quantities
 
-The uom integration is gated behind the  `uom` feature flag.
+The uom integration is gated behind the `uom` feature flag.
 
 One of the main features of [`DynQuantity`] is its capability to bridge the gap
 between uom's [`Quantity`] type (units defined at compile time) and user-provided
@@ -145,7 +145,7 @@ possible via the `From` implementation.
 
 # Serialization and deserialization
 
-The serde integration is gated behind the  `serde` feature flag.
+The serde integration is gated behind the `serde` feature flag.
 
 A [`DynQuantity`] can be deserialized from its "natural" struct representation
 or directly from a string (by first deserializing into a string and then using
@@ -176,7 +176,7 @@ The [`deserialize_with`] module holds all available functions.
 
 # Parsing strings
 
-The ability to parse strings is gated behind the  `from_str` feature flag.
+The ability to parse strings is gated behind the `from_str` feature flag.
 
 An important part of any parser is the
 [lexer](https://en.wikipedia.org/wiki/Lexical_analysis), which converts the
@@ -190,8 +190,6 @@ macro at compile time. The disadvantage of this approach is the long compile
 time caused by the procedural macro, hence this feature is hidden behing a
 feature flag.
 
-
-
 # Documentation
 
-The full API documentation is available at [https://docs.rs/dyn_quantity/0.5.0/dyn_quantity/](https://docs.rs/dyn_quantity/0.5.0/dyn_quantity/).
+The full API documentation is available at [https://docs.rs/dyn_quantity/0.5.1/dyn_quantity/](https://docs.rs/dyn_quantity/0.5.1/dyn_quantity/).

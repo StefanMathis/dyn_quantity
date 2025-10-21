@@ -311,6 +311,8 @@ assert_eq!(unit.meter, 3);
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum PredefUnit {
+    /// No unit
+    None,
     /// SI base units representation: s (second)
     Time,
     /// SI base units representation: m (meter)
@@ -366,6 +368,7 @@ pub enum PredefUnit {
 impl From<PredefUnit> for Unit {
     fn from(value: PredefUnit) -> Self {
         match value {
+            PredefUnit::None => Default::default(),
             PredefUnit::Time => Self {
                 second: 1,
                 meter: 0,
