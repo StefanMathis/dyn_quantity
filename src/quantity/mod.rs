@@ -8,12 +8,10 @@ use num::complex::ComplexFloat;
 
 use std::ops::{Div, DivAssign, Mul, MulAssign};
 
-use crate::error::{
-    ConversionError, NotConvertibleFromComplexF64, RootError, UnitsOfSummandsNotIdentical,
-};
+use crate::error::{ConversionError, NotConvertibleFromComplexF64, RootError, UnitsNotEqual};
 use crate::unit::Unit;
 
-#[cfg(any(feature = "from_str", doc))]
+#[cfg(feature = "from_str")]
 pub mod from_str_impl;
 
 #[cfg(feature = "serde")]
@@ -178,7 +176,7 @@ assert_eq!(quantity.to_string(), "9.81 s^-2 m".to_string());
 
 # Conversion into uom `Quantity`
 
-If the **uom** feature is enabled, a [`DynQuantity`] can be (fallible)
+If the `uom` feature is enabled, a [`DynQuantity`] can be (fallible)
 converted into a
 [`Quantity`](https://docs.rs/uom/latest/uom/si/struct.Quantity.html) via
 [`TryFrom`]. In combination with the aforementioned parsing capabilities, this
@@ -186,7 +184,7 @@ allows fallible parsing of strings to statically-typed physical quantities.
 
 # Serialization and deserialization
 
-If the **serde** feature is enabled, this struct can be serialized and
+If the `serde` feature is enabled, this struct can be serialized and
 deserialized. Serialization creates the "standard"
 [serde](https://crates.io/crates/serde) representation one would expect from the
 `Serialize` macro.
@@ -210,7 +208,7 @@ exponents:
 2) Deserializing directly from a string. This uses the [`std::str::FromStr`]
 implementation under the hood, see the
 [`from_str`](crate::quantity::from_str_impl) module documentation. Only
-available if the **from_str** feature is enabled.
+available if the  `from_str ` feature is enabled.
 3) Deserialize directly from a real or complex value. This option is mainly here
 to allow deserializing a serialized [uom](https://crates.io/crates/uom) quantity
 (whose serialized representation is simply its numerical value without any
@@ -258,7 +256,7 @@ impl<V: F64RealOrComplex> DynQuantity<V> {
     Physical quantities can only be added together if their units are identical.
     Hence, this function first compares the `.unit` fields of `self` and
     `other`. If they are identical, the `value` fields are added up and the
-    resulting quantity is returned. Otherwise, a [`UnitsOfSummandsNotIdentical`]
+    resulting quantity is returned. Otherwise, a [`UnitsNotEqual`]
     error is returned.
 
     # Examples
@@ -279,7 +277,7 @@ impl<V: F64RealOrComplex> DynQuantity<V> {
     assert!(volt1.try_add(&curr1).is_err());
     ```
      */
-    pub fn try_add(&self, other: &Self) -> Result<Self, UnitsOfSummandsNotIdentical> {
+    pub fn try_add(&self, other: &Self) -> Result<Self, UnitsNotEqual> {
         let mut output = self.clone();
         output.try_add_assign(other)?;
         return Ok(output);
@@ -309,15 +307,12 @@ impl<V: F64RealOrComplex> DynQuantity<V> {
     assert_eq!(volt1, volt_cpy);
     ```
      */
-    pub fn try_add_assign(&mut self, other: &Self) -> Result<(), UnitsOfSummandsNotIdentical> {
+    pub fn try_add_assign(&mut self, other: &Self) -> Result<(), UnitsNotEqual> {
         if self.unit == other.unit {
             self.value += other.value;
             return Ok(());
         } else {
-            return Err(UnitsOfSummandsNotIdentical(
-                self.unit.clone(),
-                other.unit.clone(),
-            ));
+            return Err(UnitsNotEqual(self.unit.clone(), other.unit.clone()));
         }
     }
 
@@ -327,7 +322,7 @@ impl<V: F64RealOrComplex> DynQuantity<V> {
     Physical quantities can only be subtracted from each other if their units are identical.
     Hence, this function first compares the `.unit` fields of `self` and
     `other`. If they are identical, the `value` fields are subtracted up and the
-    resulting quantity is returned. Otherwise, a [`UnitsOfSummandsNotIdentical`]
+    resulting quantity is returned. Otherwise, a [`UnitsNotEqual`]
     error is returned.
 
     # Examples
@@ -348,7 +343,7 @@ impl<V: F64RealOrComplex> DynQuantity<V> {
     assert!(volt1.try_sub(&curr1).is_err());
     ```
      */
-    pub fn try_sub(&self, other: &Self) -> Result<Self, UnitsOfSummandsNotIdentical> {
+    pub fn try_sub(&self, other: &Self) -> Result<Self, UnitsNotEqual> {
         let mut output = self.clone();
         output.try_sub_assign(other)?;
         return Ok(output);
@@ -378,15 +373,12 @@ impl<V: F64RealOrComplex> DynQuantity<V> {
     assert_eq!(volt1, volt_cpy);
     ```
      */
-    pub fn try_sub_assign(&mut self, other: &Self) -> Result<(), UnitsOfSummandsNotIdentical> {
+    pub fn try_sub_assign(&mut self, other: &Self) -> Result<(), UnitsNotEqual> {
         if self.unit == other.unit {
             self.value -= other.value;
             return Ok(());
         } else {
-            return Err(UnitsOfSummandsNotIdentical(
-                self.unit.clone(),
-                other.unit.clone(),
-            ));
+            return Err(UnitsNotEqual(self.unit.clone(), other.unit.clone()));
         }
     }
 
@@ -648,12 +640,12 @@ the case, it converts the slice to a vector of their values `V`.
 pub fn to_vec_checked(quantity_slice: &[DynQuantity<f64>]) -> Result<Vec<f64>, ConversionError> {
     let mut output: Vec<f64> = Vec::with_capacity(quantity_slice.len());
     if let Some(first_element) = quantity_slice.first() {
-        let exponents = first_element.unit.clone();
+        let first_elem_unit = first_element.unit;
         for element in quantity_slice.iter() {
-            if element.unit != exponents {
+            if element.unit != first_elem_unit {
                 return Err(ConversionError::UnitMismatch {
-                    expected: exponents,
-                    found: element.unit.clone(),
+                    expected: first_elem_unit,
+                    found: element.unit,
                 });
             }
             output.push(element.value)

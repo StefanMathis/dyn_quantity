@@ -25,7 +25,7 @@ of root calculation ([`Unit::try_nthroot`]).
 
 # Serialization and deserialization
 
-If the **serde** feature is enabled, this struct can be serialized and
+If the `serde` feature is enabled, this struct can be serialized and
 deserialized. Serialization creates the "standard"
 [serde](https://crates.io/crates/serde) representation one would expect from the
 `Serialize` macro.

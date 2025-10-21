@@ -11,33 +11,28 @@ use num::Complex;
 use crate::Unit;
 
 /**
-Error representing a failed attempt to add two physical quantities.
+Error representing unequality of units.
 
-Two physical quantities can only be added if their units of measurements are
-identical. If they aren't, the corresponding function will return an instance
-of this struct, which holds the [`Unit`] of both quantities for
-further inspection.
+Sometimes, units of measurements must be identical for a certain operation. For
+example, two physical quantities can only be added if their units are
+identical. This struct holds both involved units for further inspection.
  */
 #[derive(Debug, Clone, PartialEq, Default)]
 #[repr(C)]
-pub struct UnitsOfSummandsNotIdentical(pub Unit, pub Unit);
+pub struct UnitsNotEqual(pub Unit, pub Unit);
 
-impl Display for UnitsOfSummandsNotIdentical {
+impl Display for UnitsNotEqual {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "first summand has exponents {}, but second summand has exponents {}",
-            self.0, self.1
-        )
+        write!(f, "unit {} not equal to unit {}", self.0, self.1)
     }
 }
 
-impl Error for UnitsOfSummandsNotIdentical {}
+impl Error for UnitsNotEqual {}
 
 /**
-Error representing a failed attempt to calculate the `n`th root of a [`Unit`].
+Error representing a failed attempt to calculate the `n`th root of an [`Unit`].
 
-Calculating the `n`th root of a [`Unit`] fails if any of the exponents
+Calculating the `n`th root of an [`Unit`] fails if any of the exponents
 is not divisible by `n`.
  */
 #[derive(Default, Debug, Clone, PartialEq)]
@@ -121,7 +116,7 @@ pub enum ParseErrorReason {
     An addition / subtraction of two invalid quantities was defined in the
     string, e.g. "3 A + 2 V".
      */
-    UnitsOfSummandsNotIdentical(UnitsOfSummandsNotIdentical),
+    UnitsNotEqual(UnitsNotEqual),
     /// See docstring of [`NotConvertibleFromComplexF64`].
     NotConvertibleFromComplexF64(NotConvertibleFromComplexF64),
     /// Generic fallback error for all other parsing failures
@@ -154,7 +149,7 @@ impl std::fmt::Display for ParseErrorReason {
                     "encountered two operators (+, -, * or /) without a number between them"
                 )
             }
-            ParseErrorReason::UnitsOfSummandsNotIdentical(inner) => inner.fmt(f),
+            ParseErrorReason::UnitsNotEqual(inner) => inner.fmt(f),
             ParseErrorReason::MustNotStartWith => {
                 write!(f, "input must not start with this token")
             }
@@ -163,9 +158,9 @@ impl std::fmt::Display for ParseErrorReason {
     }
 }
 
-impl From<UnitsOfSummandsNotIdentical> for ParseErrorReason {
-    fn from(value: UnitsOfSummandsNotIdentical) -> Self {
-        return Self::UnitsOfSummandsNotIdentical(value);
+impl From<UnitsNotEqual> for ParseErrorReason {
+    fn from(value: UnitsNotEqual) -> Self {
+        return Self::UnitsNotEqual(value);
     }
 }
 

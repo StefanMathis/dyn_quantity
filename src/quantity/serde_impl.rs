@@ -59,6 +59,8 @@ where
     /**
     String representation using the [`std::str::FromStr`] implementation for
     [`DynQuantity`].
+
+    Only available if the `from_str` feature is enabled.
      */
     #[cfg(feature = "from_str")]
     String(String),
@@ -544,7 +546,6 @@ where
                     NumberOrString::String(string) => {
                         let first_element =
                             DynQuantity::from_str(&string).map_err(serde::de::Error::custom)?;
-                        let first_element_unit = first_element.unit.clone();
                         let output_element =
                             first_element.try_into().map_err(serde::de::Error::custom)?;
                         vec.0.push(output_element);
@@ -560,10 +561,10 @@ where
                                 NumberOrString::String(string) => {
                                     let element = DynQuantity::<Complex<f64>>::from_str(&string)
                                         .map_err(serde::de::Error::custom)?;
-                                    if element.unit != first_element_unit {
+                                    if element.unit != first_element.unit {
                                         return Err(serde::de::Error::custom(
                                             ConversionError::UnitMismatch {
-                                                expected: first_element_unit,
+                                                expected: first_element.unit,
                                                 found: element.unit,
                                             },
                                         ));

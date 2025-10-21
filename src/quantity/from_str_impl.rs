@@ -90,7 +90,7 @@ operator is then inserted implicitly). For example, the following strings all
 parse to the same [`DynQuantity`]: `3 A m`, `3 * A m`, `3 * A * m`, `3 A * m`.
 Some mathematical operations are invalid when units are involved, for example
 `3 A + 5 V`. Trying to parse such a string results in an
-[`UnitsOfSummandsNotIdentical`](crate::UnitsOfSummandsNotIdentical) error.
+[`UnitsNotEqual`](crate::UnitsNotEqual) error.
 The resolution of multiple operators follows the standard arithmetic rules:
 exponentiation -> multiplication / division -> addition / subtraction
 The following operators are available:
@@ -497,7 +497,7 @@ fn from_str_complexf64(s: &str) -> Result<DynQuantity<Complex<f64>>, ParseError>
                                         return ParseError {
                                             substring: s[lexer.span()].to_owned(),
                                             span: lexer.span(),
-                                            reason: ParseErrorReason::UnitsOfSummandsNotIdentical(
+                                            reason: ParseErrorReason::UnitsNotEqual(
                                                 add,
                                             ),
                                         };
@@ -808,7 +808,7 @@ fn from_str_complexf64(s: &str) -> Result<DynQuantity<Complex<f64>>, ParseError>
                     return ParseError {
                         substring: s[lexer.span()].to_owned(),
                         span: lexer.span(),
-                        reason: ParseErrorReason::UnitsOfSummandsNotIdentical(add),
+                        reason: ParseErrorReason::UnitsNotEqual(add),
                     };
                 })?,
                 Operation::Mul(item) => {

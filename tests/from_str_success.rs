@@ -91,7 +91,7 @@ fn test_addition() {
     {
         let error = DynQuantity::<f64>::from_str("3 A + 1 s").unwrap_err();
         match error.reason {
-            ParseErrorReason::UnitsOfSummandsNotIdentical(_) => (),
+            ParseErrorReason::UnitsNotEqual(_) => (),
             _ => panic!("wrong error type"),
         }
     }
