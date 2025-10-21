@@ -208,7 +208,7 @@ exponents:
 2) Deserializing directly from a string. This uses the [`std::str::FromStr`]
 implementation under the hood, see the
 [`from_str`](crate::quantity::from_str_impl) module documentation. Only
-available if the  `from_str ` feature is enabled.
+available if the `from_str` feature is enabled.
 3) Deserialize directly from a real or complex value. This option is mainly here
 to allow deserializing a serialized [uom](https://crates.io/crates/uom) quantity
 (whose serialized representation is simply its numerical value without any

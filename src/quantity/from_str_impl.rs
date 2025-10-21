@@ -120,7 +120,7 @@ is needed. Superfluous brackets are ignored. If no operator is specified before
 a bracket, the multiplication operator `*` is inserted implicitly.
 
 For example, the following strings parse to the same [`DynQuantity`]:
-`3 * (1A + 4A)`, `3 * ((1A + 4A))`,  `3(1A + 4A)`
+`3 * (1A + 4A)`, `3 * ((1A + 4A))`, `3(1A + 4A)`
 all result in a value of `15` with the unit `A`. Brackets are not allowed
 directly after an exponentiation symbol `^`. However, exponentiation of a
 bracket is allowed
@@ -497,9 +497,7 @@ fn from_str_complexf64(s: &str) -> Result<DynQuantity<Complex<f64>>, ParseError>
                                         return ParseError {
                                             substring: s[lexer.span()].to_owned(),
                                             span: lexer.span(),
-                                            reason: ParseErrorReason::UnitsNotEqual(
-                                                add,
-                                            ),
+                                            reason: ParseErrorReason::UnitsNotEqual(add),
                                         };
                                     })?
                                 }

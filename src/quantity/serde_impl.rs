@@ -157,8 +157,8 @@ where
 }
 
 /**
-Like [`deserialize_quantity`], but deserializes into an [`Option<Quantity>`]
-instead of a [`Quantity`].
+Like [`deserialize_quantity`], but deserializes into an [`Option<T>`]
+instead of a `T` implementing [`TryFrom<DynQuantity>`].
 
 # Examples
 ```
