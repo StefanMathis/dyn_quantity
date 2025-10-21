@@ -246,8 +246,11 @@ impl<V: F64RealOrComplex> DynQuantity<V> {
     /**
     Returns a new instance of `Self`.
      */
-    pub fn new(value: V, unit: Unit) -> Self {
-        return Self { value, unit };
+    pub fn new<U: Into<Unit>>(value: V, unit: U) -> Self {
+        return Self {
+            value,
+            unit: unit.into(),
+        };
     }
 
     /**
@@ -576,13 +579,13 @@ impl TryFrom<DynQuantity<Complex<f64>>> for DynQuantity<f64> {
 
 impl From<f64> for DynQuantity<f64> {
     fn from(value: f64) -> Self {
-        return DynQuantity::new(value, Default::default());
+        return DynQuantity::new(value, Unit::default());
     }
 }
 
 impl From<Complex<f64>> for DynQuantity<Complex<f64>> {
     fn from(value: Complex<f64>) -> Self {
-        return DynQuantity::new(value, Default::default());
+        return DynQuantity::new(value, Unit::default());
     }
 }
 

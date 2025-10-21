@@ -234,7 +234,10 @@ use ::num::{Complex, Zero};
 use dyn_quantity_lexer::{Logos, Token};
 
 use super::{DynQuantity, F64RealOrComplex};
-use crate::error::{ParseError, ParseErrorReason};
+use crate::{
+    Unit,
+    error::{ParseError, ParseErrorReason},
+};
 
 impl<V: F64RealOrComplex> FromStr for DynQuantity<V> {
     type Err = ParseError;
@@ -293,7 +296,7 @@ fn from_str_complexf64(s: &str) -> Result<DynQuantity<Complex<f64>>, ParseError>
     ) {
         let mut quantity = active_quantity
             .take()
-            .unwrap_or(DynQuantity::new(Complex::new(1.0, 0.0), Default::default()));
+            .unwrap_or(DynQuantity::new(Complex::new(1.0, 0.0), Unit::default()));
 
         fun(&mut quantity);
 
@@ -316,7 +319,7 @@ fn from_str_complexf64(s: &str) -> Result<DynQuantity<Complex<f64>>, ParseError>
         } else {
             *active_quantity = Some(DynQuantity::new(
                 Complex::new(infinity, 0.0),
-                Default::default(),
+                Unit::default(),
             ));
         }
     }
@@ -395,7 +398,7 @@ fn from_str_complexf64(s: &str) -> Result<DynQuantity<Complex<f64>>, ParseError>
                     quantity.value = multiply_no_nan(quantity.value, Complex::new(val, 0.0));
                 } else {
                     active_quantity =
-                        Some(DynQuantity::new(Complex::new(val, 0.0), Default::default()));
+                        Some(DynQuantity::new(Complex::new(val, 0.0), Unit::default()));
                 }
             }
             Token::Imag(val) => {
@@ -403,7 +406,7 @@ fn from_str_complexf64(s: &str) -> Result<DynQuantity<Complex<f64>>, ParseError>
                     quantity.value = multiply_no_nan(quantity.value, Complex::new(0.0, val));
                 } else {
                     active_quantity =
-                        Some(DynQuantity::new(Complex::new(0.0, val), Default::default()));
+                        Some(DynQuantity::new(Complex::new(0.0, val), Unit::default()));
                 }
             }
             Token::Infinity => {
@@ -480,7 +483,7 @@ fn from_str_complexf64(s: &str) -> Result<DynQuantity<Complex<f64>>, ParseError>
                     if previous_token == PreviousToken::Other {
                         stack.push(Operation::Mul(DynQuantity::new(
                             Complex::new(1.0, 0.0),
-                            Default::default(),
+                            Unit::default(),
                         )));
                     }
                 }
@@ -546,7 +549,7 @@ fn from_str_complexf64(s: &str) -> Result<DynQuantity<Complex<f64>>, ParseError>
                     });
                 }
 
-                let new_quantity = DynQuantity::new(Complex::new(1.0, 0.0), Default::default());
+                let new_quantity = DynQuantity::new(Complex::new(1.0, 0.0), Unit::default());
                 if let Some(quantity) = active_quantity.replace(new_quantity) {
                     stack.push(Operation::Add(quantity));
                 }
@@ -564,7 +567,7 @@ fn from_str_complexf64(s: &str) -> Result<DynQuantity<Complex<f64>>, ParseError>
                     });
                 }
 
-                let new_quantity = DynQuantity::new(Complex::new(-1.0, 0.0), Default::default());
+                let new_quantity = DynQuantity::new(Complex::new(-1.0, 0.0), Unit::default());
                 if let Some(quantity) = active_quantity.replace(new_quantity) {
                     stack.push(Operation::Add(quantity));
                 }
@@ -577,7 +580,7 @@ fn from_str_complexf64(s: &str) -> Result<DynQuantity<Complex<f64>>, ParseError>
                 } else {
                     active_quantity = Some(DynQuantity::new(
                         Complex::new(10f64.powi(exponent), 0.0),
-                        Default::default(),
+                        Unit::default(),
                     ));
                 }
             }
