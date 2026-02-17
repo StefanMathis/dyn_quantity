@@ -10,9 +10,9 @@ This module implements [`std::str::FromStr`] for [`DynQuantity`].
 A [`DynQuantity`] can be parsed from a string which combines numbers, units,
 mathematical operators and brackets using the following syntax.
 
-## Numbers
+## Inners
 
-Numbers can be either integers or floats. Imaginary numbers need to have
+Inners can be either integers or floats. Imaginary numbers need to have
 either an `i` or `j` behind the numerical value (with or without a space).
 For example, the following strings are all parsed to the same [`DynQuantity`]:
 `2 i`, `2j`, `2.0 j`, `2.0i`.
@@ -83,7 +83,7 @@ the unit `mm^2` is equivalent to `1e-6 m^2`
 
 ## Operators
 
-Numbers and units can be combined via mathematical operators.
+Inners and units can be combined via mathematical operators.
 While numbers always need to have an operator in between them, it is possible to
 omit them when combining different units or units with numbers (a multiplication
 operator is then inserted implicitly). For example, the following strings all
@@ -418,7 +418,7 @@ fn from_str_complexf64(s: &str) -> Result<DynQuantity<Complex<f64>>, ParseError>
             Token::Mul => {
                 // This is essentially a no-op - we therefore do just some error checking
                 if previous_token != PreviousToken::Other {
-                    let reason = ParseErrorReason::TwoOperatorsWithoutNumber;
+                    let reason = ParseErrorReason::TwoOperatorsWithoutInner;
                     return Err(ParseError {
                         substring: s[lexer.span()].to_owned(),
                         span: lexer.span(),
@@ -438,7 +438,7 @@ fn from_str_complexf64(s: &str) -> Result<DynQuantity<Complex<f64>>, ParseError>
             }
             Token::Div => {
                 if previous_token != PreviousToken::Other {
-                    let reason = ParseErrorReason::TwoOperatorsWithoutNumber;
+                    let reason = ParseErrorReason::TwoOperatorsWithoutInner;
                     return Err(ParseError {
                         substring: s[lexer.span()].to_owned(),
                         span: lexer.span(),
@@ -541,7 +541,7 @@ fn from_str_complexf64(s: &str) -> Result<DynQuantity<Complex<f64>>, ParseError>
             Token::Add => {
                 // Constructs such as "-+" or "++" are not allowed, but *+1 is
                 if previous_token == PreviousToken::Add || previous_token == PreviousToken::Sub {
-                    let reason = ParseErrorReason::TwoOperatorsWithoutNumber;
+                    let reason = ParseErrorReason::TwoOperatorsWithoutInner;
                     return Err(ParseError {
                         substring: s[lexer.span()].to_owned(),
                         span: lexer.span(),
@@ -559,7 +559,7 @@ fn from_str_complexf64(s: &str) -> Result<DynQuantity<Complex<f64>>, ParseError>
             Token::Sub => {
                 // Constructs such as "+-" or "--" are not allowed, but /-1 or /+1 is
                 if previous_token == PreviousToken::Add || previous_token == PreviousToken::Sub {
-                    let reason = ParseErrorReason::TwoOperatorsWithoutNumber;
+                    let reason = ParseErrorReason::TwoOperatorsWithoutInner;
                     return Err(ParseError {
                         substring: s[lexer.span()].to_owned(),
                         span: lexer.span(),

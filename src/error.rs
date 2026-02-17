@@ -103,11 +103,11 @@ pub enum ParseErrorReason {
     /// - "5 32": Invalid because it is unclear how the numbers should
     /// combined in the resulting [`DynQuantity`](crate::quantity::DynQuantity).
     /// - "5 * 32": Valid
-    TwoNumbersWithoutOperator,
+    TwoInnersWithoutOperator,
     /// Two operators without a number inbetween are in the string:
     /// - "3 / * 2": Invalid
     /// - "3 / 1 * 2": Valid
-    TwoOperatorsWithoutNumber,
+    TwoOperatorsWithoutInner,
     /// The string must not start with certain characters, for example:
     /// - Operators such as *, /, ^
     /// - Closing brackets
@@ -137,13 +137,13 @@ impl std::fmt::Display for ParseErrorReason {
             ParseErrorReason::UnbalancedBrackets => {
                 write!(f, "unbalanced number of brackets")
             }
-            ParseErrorReason::TwoNumbersWithoutOperator => {
+            ParseErrorReason::TwoInnersWithoutOperator => {
                 write!(
                     f,
                     "encountered two numbers without an operator (+ or -) between them"
                 )
             }
-            ParseErrorReason::TwoOperatorsWithoutNumber => {
+            ParseErrorReason::TwoOperatorsWithoutInner => {
                 write!(
                     f,
                     "encountered two operators (+, -, * or /) without a number between them"
@@ -176,7 +176,7 @@ representing a complex quantity into a
  */
 #[derive(Debug, Clone, PartialEq)]
 pub struct NotConvertibleFromComplexF64 {
-    /// Number which failed to convert.
+    /// Inner which failed to convert.
     pub source: Complex<f64>,
     /// Target type name.
     pub target_type: &'static str,

@@ -75,56 +75,56 @@ fn test_two_operators_without_number() {
     {
         let error = DynQuantity::<f64>::from_str("1++1").unwrap_err();
         match error.reason {
-            ParseErrorReason::TwoOperatorsWithoutNumber => (),
+            ParseErrorReason::TwoOperatorsWithoutInner => (),
             _ => panic!("wrong error type"),
         }
     }
     {
         let error = DynQuantity::<f64>::from_str("1+-1").unwrap_err();
         match error.reason {
-            ParseErrorReason::TwoOperatorsWithoutNumber => (),
+            ParseErrorReason::TwoOperatorsWithoutInner => (),
             _ => panic!("wrong error type"),
         }
     }
     {
         let error = DynQuantity::<f64>::from_str("1-+1").unwrap_err();
         match error.reason {
-            ParseErrorReason::TwoOperatorsWithoutNumber => (),
+            ParseErrorReason::TwoOperatorsWithoutInner => (),
             _ => panic!("wrong error type"),
         }
     }
     {
         let error = DynQuantity::<f64>::from_str("1--1").unwrap_err();
         match error.reason {
-            ParseErrorReason::TwoOperatorsWithoutNumber => (),
+            ParseErrorReason::TwoOperatorsWithoutInner => (),
             _ => panic!("wrong error type"),
         }
     }
     {
         let error = DynQuantity::<f64>::from_str("1-*1").unwrap_err();
         match error.reason {
-            ParseErrorReason::TwoOperatorsWithoutNumber => (),
+            ParseErrorReason::TwoOperatorsWithoutInner => (),
             _ => panic!("wrong error type"),
         }
     }
     {
         let error = DynQuantity::<f64>::from_str("1**1").unwrap_err();
         match error.reason {
-            ParseErrorReason::TwoOperatorsWithoutNumber => (),
+            ParseErrorReason::TwoOperatorsWithoutInner => (),
             _ => panic!("wrong error type"),
         }
     }
     {
         let error = DynQuantity::<f64>::from_str("1/*1").unwrap_err();
         match error.reason {
-            ParseErrorReason::TwoOperatorsWithoutNumber => (),
+            ParseErrorReason::TwoOperatorsWithoutInner => (),
             _ => panic!("wrong error type"),
         }
     }
     {
         let error = DynQuantity::<f64>::from_str("1//1").unwrap_err();
         match error.reason {
-            ParseErrorReason::TwoOperatorsWithoutNumber => (),
+            ParseErrorReason::TwoOperatorsWithoutInner => (),
             _ => panic!("wrong error type"),
         }
     }
