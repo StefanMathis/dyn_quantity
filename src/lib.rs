@@ -8,6 +8,8 @@ pub mod unit;
 pub use error::*;
 pub use quantity::DynQuantity;
 pub use unit::{PredefUnit, Unit, UnitFromType};
+
+#[cfg(feature = "uom")]
 pub use uom;
 
 #[cfg(feature = "serde")]
