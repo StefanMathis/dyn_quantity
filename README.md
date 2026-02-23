@@ -26,20 +26,20 @@ mathematical operations as well as scientific notation. If there is no
 operand specified between individual components (numbers or physical units),
 multiplication is assumed. The resulting value is calculated while parsing.
 */
-let quant = DynQuantity::<f64>::from_str("4e2 pi mWb / (2*s^3)^2").expect("valid");
+let quantity = DynQuantity::<f64>::from_str("4e2 pi mWb / (2*s^3)^2").expect("valid");
 
 // The SI value of the quantity is "4e2 * pi * 1e-3 / 2^2" => the 1e-3 stems 
 // from the prefix "m" of "mWb". This equates to 0.1 * pi or roughly 0.31459.
-assert!((quant.value - 0.31459) < 1e-5);
+assert!((quantity.value - 0.31459) < 1e-5);
 
 // The SI base units exponents of "Wb / (s^3)^2" are:
-assert_eq!(quant.unit.second, -8);
-assert_eq!(quant.unit.meter, 2);
-assert_eq!(quant.unit.kilogram, 1);
-assert_eq!(quant.unit.ampere, -1);
-assert_eq!(quant.unit.kelvin, 0);
-assert_eq!(quant.unit.mol, 0);
-assert_eq!(quant.unit.candela, 0);
+assert_eq!(quantity.unit.second, -8);
+assert_eq!(quantity.unit.meter, 2);
+assert_eq!(quantity.unit.kilogram, 1);
+assert_eq!(quantity.unit.ampere, -1);
+assert_eq!(quantity.unit.kelvin, 0);
+assert_eq!(quantity.unit.mol, 0);
+assert_eq!(quantity.unit.candela, 0);
 ```
 
 The docstring of the [`from_str_impl`] module provides a complete documentation of

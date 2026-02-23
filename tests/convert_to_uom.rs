@@ -1,6 +1,6 @@
 use std::{f64::consts::PI, str::FromStr};
 
-use ::uom::si::{
+use dyn_quantity::uom::si::{
     complex64, electrical_resistance::ohm, energy::joule, f64::*, length::meter,
     specific_power::watt_per_kilogram, torque::newton_millimeter,
 };

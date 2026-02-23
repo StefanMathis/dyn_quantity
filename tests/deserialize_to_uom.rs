@@ -1,6 +1,6 @@
 use std::f64::consts::{FRAC_PI_2, PI, TAU};
 
-use ::uom::si::{electrical_resistance::ohm, f64::*, torque::newton_meter};
+use dyn_quantity::uom::si::{electrical_resistance::ohm, f64::*, torque::newton_meter};
 use dyn_quantity::*;
 use indoc::indoc;
 use serde::{Deserialize, Serialize};
