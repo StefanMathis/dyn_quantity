@@ -1,6 +1,6 @@
 [package]
 name = "dyn_quantity"
-version = "0.5.4"
+version = "0.5.5"
 edition = "2024"
 description = "Representing physical quantities dynamically (i.e. via values, not via the type system)"
 readme = "README.md"
