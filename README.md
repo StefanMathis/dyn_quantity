@@ -9,6 +9,10 @@ dyn_quantity
 [`from_str_impl`]: https://docs.rs/dyn_quantity/0.5.6/dyn_quantity/quantity/from_str_impl/index.html
 [dyn_quantity_lexer]: https://docs.rs/dyn_quantity_lexer/latest/dyn_quantity_lexer/index.html
 
+> **Feedback welcome!**  
+> Found a bug, missing docs, or have a feature request?  
+> Please open an issue on GitHub.
+
 The strong type system of rust allows defining physical quantities as types -
 see for example the [uom](https://docs.rs/uom/latest/uom/) crate. This is very
 useful to evaluate the correctness of calculations at compile time. Sometimes
