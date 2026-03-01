@@ -238,12 +238,11 @@ For examples see the [`serialize_with_units`] documentation.
 pub fn serialize_quantity<S, T>(value: &T, serializer: S) -> Result<S::Ok, S::Error>
 where
     S: serde::ser::Serializer,
-    T: Serialize,
-    for<'a> &'a T: Into<DynQuantity<Complex<f64>>>,
+    T: Serialize + Clone + Into<DynQuantity<Complex<f64>>>,
 {
     SERIALIZE_WITH_UNITS.with(|ctx| {
         if ctx.get() {
-            let quantity: DynQuantity<Complex<f64>> = value.into();
+            let quantity: DynQuantity<Complex<f64>> = value.clone().into();
             let string = quantity.to_string();
             string.serialize(serializer)
         } else {
@@ -261,21 +260,10 @@ For examples see the [`serialize_with_units`] documentation.
 pub fn serialize_opt_quantity<S, T>(value: &Option<T>, serializer: S) -> Result<S::Ok, S::Error>
 where
     S: serde::ser::Serializer,
-    T: Serialize,
-    for<'a> &'a T: Into<DynQuantity<Complex<f64>>>,
+    T: Serialize + Clone + Into<DynQuantity<Complex<f64>>>,
 {
     match value.as_ref() {
-        Some(v) => {
-            let quantity: DynQuantity<Complex<f64>> = v.into();
-            SERIALIZE_WITH_UNITS.with(|ctx| {
-                if ctx.get() {
-                    let string = quantity.to_string();
-                    string.serialize(serializer)
-                } else {
-                    value.serialize(serializer)
-                }
-            })
-        }
+        Some(v) => return serialize_quantity(v, serializer),
         None => return serializer.serialize_none(),
     }
 }
