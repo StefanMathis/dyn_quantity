@@ -1,15 +1,15 @@
 dyn_quantity
 ============
 
-[`DynQuantity`]: https://docs.rs/dyn_quantity/0.5.9/dyn_quantity/quantity/struct.DynQuantity.html
-[`Unit`]: https://docs.rs/dyn_quantity/0.5.9/dyn_quantity/unit/struct.Unit.html
+[`DynQuantity`]: https://docs.rs/dyn_quantity/0.5.10/dyn_quantity/quantity/struct.DynQuantity.html
+[`Unit`]: https://docs.rs/dyn_quantity/0.5.10/dyn_quantity/unit/struct.Unit.html
 [`Quantity`]: https://docs.rs/uom/latest/uom/si/struct.Quantity.html
-[`serde_impl`]: https://docs.rs/dyn_quantity/0.5.9/dyn_quantity/quantity/serde_impl/index.html
-[`serialize_quantity`]: https://docs.rs/dyn_quantity/0.5.9/dyn_quantity/quantity/serde_impl/fn.serialize_quantity.html
-[`serialize_quantity`]: https://docs.rs/dyn_quantity/0.5.9/dyn_quantity/quantity/serde_impl/fn.serialize_with_units.html
-[`deserialize_quantity`]: https://docs.rs/dyn_quantity/0.5.9/dyn_quantity/quantity/serde_impl/fn.deserialize_quantity.html
+[`serde_impl`]: https://docs.rs/dyn_quantity/0.5.10/dyn_quantity/quantity/serde_impl/index.html
+[`serialize_quantity`]: https://docs.rs/dyn_quantity/0.5.10/dyn_quantity/quantity/serde_impl/fn.serialize_quantity.html
+[`serialize_quantity`]: https://docs.rs/dyn_quantity/0.5.10/dyn_quantity/quantity/serde_impl/fn.serialize_with_units.html
+[`deserialize_quantity`]: https://docs.rs/dyn_quantity/0.5.10/dyn_quantity/quantity/serde_impl/fn.deserialize_quantity.html
 [`FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
-[`from_str_impl`]: https://docs.rs/dyn_quantity/0.5.9/dyn_quantity/quantity/from_str_impl/index.html
+[`from_str_impl`]: https://docs.rs/dyn_quantity/0.5.10/dyn_quantity/quantity/from_str_impl/index.html
 [dyn_quantity_lexer]: https://docs.rs/dyn_quantity_lexer/latest/dyn_quantity_lexer/index.html
 
 A crate for dealing with quantities where the units are only known at runtime.
@@ -257,4 +257,4 @@ time caused by the procedural macro, hence this feature is hidden behind the
 
 # Documentation
 
-The full API documentation is available at [https://docs.rs/dyn_quantity/0.5.9/dyn_quantity/](https://docs.rs/dyn_quantity/0.5.9/dyn_quantity/).
+The full API documentation is available at [https://docs.rs/dyn_quantity/0.5.10/dyn_quantity/](https://docs.rs/dyn_quantity/0.5.10/dyn_quantity/).
