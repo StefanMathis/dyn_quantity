@@ -6,6 +6,7 @@ implements [`TryFrom<DynQuantity>`]. See the docstring of [`DynQuantity`] for an
 overview over all possible representations.
 */
 
+use std::cell::Cell;
 #[cfg(feature = "from_str")]
 use std::str::FromStr;
 
@@ -115,6 +116,217 @@ enum InnerOrString<T> {
     #[cfg(feature = "from_str")]
     String(String),
 }
+
+thread_local!(
+    /**
+    A thread-local, static variable which enables / disables serialization of
+    quantities with or without units. It is used within the functions
+    [`serialize_quantity`], [`serialize_opt_quantity`], [`serialize_angle`] and
+    [`serialize_opt_angle`] as a thread-local context to decide whether a
+    quantity should be serialized with or without its units. By default, its
+    value is `false`, meaning that quantities are serialized without their
+    units. The [`serialize_with_units`] function sets it temporarily to `true`,
+    then performs the actual serialization, and afterwards resets it to `false`
+    again (return to default behaviour).
+
+    Direct interaction with this variable is only necessary when writing a
+    multithreaded serializer, see the docstring of [`serialize_with_units`].
+    Otherwise, it is highly recommended to leave this variable alone.
+    */
+    pub static SERIALIZE_WITH_UNITS: Cell<bool> = Cell::new(false)
+);
+
+/**
+A wrapper around a serialization function / closure which enables serialization
+with units.
+
+# Overview
+
+By default, a quantity or angle is often serialized as its raw value in base SI
+units, which is very efficient. Sometimes, it might be useful to store a value
+together with its units. If a struct field uses [`serialize_quantity`],
+[`serialize_opt_quantity`], [`serialize_angle`] or [`serialize_opt_angle`]
+for serialization and this wrapper is applied to the actual serialization
+function, then the units are stored together with the raw value in a string.
+
+# Multithreaded serialization
+
+This function is a thin wrapper around the passed in serialization function
+which just sets [`SERIALIZE_WITH_UNITS`] to `true`, then calls the passed in
+function, stores the result, then sets [`SERIALIZE_WITH_UNITS`] back to `false`
+and finally returns the result. Since [`SERIALIZE_WITH_UNITS`] is a thread-local
+variable, it will be set to its default value `false` if a new thread is created
+inside the passed function. Hence, a multithreaded serializer needs to adjust
+the value of [`SERIALIZE_WITH_UNITS`] in each thread it creates - which is why
+[`SERIALIZE_WITH_UNITS`] is exposed in the first place.
+
+# Examples
+
+```
+use serde::{Serialize};
+use uom::si::{f64::Length, length::{millimeter, kilometer}};
+use dyn_quantity::*;
+use indoc::indoc;
+
+#[derive(Serialize, Debug)]
+struct Quantities {
+    #[serde(serialize_with = "serialize_quantity")]
+    length: Length,
+    #[serde(serialize_with = "serialize_opt_quantity")]
+    opt_length: Option<Length>,
+    #[serde(serialize_with = "serialize_angle")]
+    angle: f64,
+    #[serde(serialize_with = "serialize_opt_angle")]
+    opt_angle: Option<f64>,
+}
+
+let quantities = Quantities {
+    length: Length::new::<millimeter>(1.0),
+    opt_length: Some(Length::new::<kilometer>(1.0)),
+    angle: 1.0,
+    opt_angle: Some(2.0),
+};
+
+// Without units (standard serialization)
+let expected = indoc! {"
+---
+length: 0.001
+opt_length: 1000.0
+angle: 1.0
+opt_angle: 2.0
+
+"};
+let actual = serde_yaml::to_string(&quantities).expect("serialization succeeds");
+assert_eq!(expected, actual);
+
+// With units
+let expected = indoc! {"
+---
+length: 0.001 m
+opt_length: 1000 m
+angle: 1 rad
+opt_angle: 2 rad
+
+"};
+let actual = serialize_with_units(||{serde_yaml::to_string(&quantities)}).expect("serialization succeeds");
+assert_eq!(expected, actual);
+```
+ */
+pub fn serialize_with_units<F, R>(f: F) -> R
+where
+    F: FnOnce() -> R,
+{
+    SERIALIZE_WITH_UNITS.with(|ctx| {
+        ctx.set(true);
+        let res = f();
+        ctx.set(false);
+        res
+    })
+}
+
+/**
+Enables serialization of a quantity (any type implementing
+[`Into<DynQuantity>`]) into a string containing both the value and the units.
+
+When a value is serialized using [`serialize_with_units`], this function stores
+a quantity as a string containing both the raw value and the units.
+If [`serialize_with_units`] is not used, this function serializes its field
+using the default [`Serialize`] implementation of the type.
+
+For examples see the [`serialize_with_units`] documentation.
+ */
+pub fn serialize_quantity<S, T>(value: &T, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: serde::ser::Serializer,
+    T: Serialize,
+    for<'a> &'a T: Into<DynQuantity<Complex<f64>>>,
+{
+    SERIALIZE_WITH_UNITS.with(|ctx| {
+        if ctx.get() {
+            let quantity: DynQuantity<Complex<f64>> = value.into();
+            let string = quantity.to_string();
+            string.serialize(serializer)
+        } else {
+            value.serialize(serializer)
+        }
+    })
+}
+
+/**
+Like [`serialize_quantity`], but serializes an [`&Option<T>`]
+instead of a `&T` implementing [`Into<DynQuantity>`].
+
+For examples see the [`serialize_with_units`] documentation.
+ */
+pub fn serialize_opt_quantity<S, T>(value: &Option<T>, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: serde::ser::Serializer,
+    T: Serialize,
+    for<'a> &'a T: Into<DynQuantity<Complex<f64>>>,
+{
+    match value.as_ref() {
+        Some(v) => {
+            let quantity: DynQuantity<Complex<f64>> = v.into();
+            SERIALIZE_WITH_UNITS.with(|ctx| {
+                if ctx.get() {
+                    let string = quantity.to_string();
+                    string.serialize(serializer)
+                } else {
+                    value.serialize(serializer)
+                }
+            })
+        }
+        None => return serializer.serialize_none(),
+    }
+}
+
+/**
+Enables serialization of an angle into a string containing both the value and
+the "rad" unit.
+
+When a value is serialized using [`serialize_with_units`], this function stores
+an angle as a string containing both the raw value and the "rad" unit.
+If [`serialize_with_units`] is not used, this function serializes its field
+using the default [`Serialize`] implementation of the type.
+
+For examples see the [`serialize_with_units`] documentation.
+ */
+pub fn serialize_angle<S, T>(value: &T, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: serde::ser::Serializer,
+    T: Serialize,
+    for<'a> &'a T: ToString,
+{
+    SERIALIZE_WITH_UNITS.with(|ctx| {
+        if ctx.get() {
+            let mut string = value.to_string();
+            string.push_str(" rad");
+            string.serialize(serializer)
+        } else {
+            value.serialize(serializer)
+        }
+    })
+}
+
+/**
+Like [`serialize_angle`], but serializes an [`&Option<T>`]
+instead of a `&T` implementing [`Into<DynQuantity>`].
+
+For examples see the [`serialize_with_units`] documentation.
+ */
+pub fn serialize_opt_angle<S, T>(value: &Option<T>, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: serde::ser::Serializer,
+    T: Serialize,
+    for<'a> &'a T: ToString,
+{
+    match value.as_ref() {
+        Some(v) => serialize_angle(v, serializer),
+        None => return serializer.serialize_none(),
+    }
+}
+
+// =============================================================================
 
 /**
 Deserializes a type `T` implementing [`TryFrom<DynQuantity>`] from a valid
@@ -551,7 +763,8 @@ where
                         vec.0.push(output_element);
 
                         while let Some(quantity_rep) = seq.next_element::<InnerOrString<T>>()? {
-                            // Loop through all other elements and check if their unit is equal to first_element_unit
+                            // Loop through all other elements and check if their unit is equal to
+                            // first_element_unit
                             match quantity_rep {
                                 InnerOrString::Inner(_) => {
                                     return Err(serde::de::Error::custom(

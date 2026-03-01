@@ -58,7 +58,8 @@ where
     type Error = ConversionError;
 
     fn try_from(quantity: DynQuantity<V>) -> Result<Self, Self::Error> {
-        // Check dimensional correctness (compare runtime to compile-time unit exponents)
+        // Check dimensional correctness (compare runtime to compile-time unit
+        // exponents)
         let expected = Unit {
             second: T::to_i32(),
             meter: L::to_i32(),
@@ -75,8 +76,9 @@ where
             });
         }
 
-        // Construct the uom quantity directly from raw data. This is feasible since si_value() converts the quantity value to a coherent SI value
-        // (e.g by converting 1 km into 1000 m)
+        // Construct the uom quantity directly from raw data. This is feasible since
+        // si_value() converts the quantity value to a coherent SI value (e.g by
+        // converting 1 km into 1000 m)
         let value = quantity.value.to_complexf64();
 
         // Return an error if the value contains a complex component
@@ -117,7 +119,8 @@ where
     type Error = ConversionError;
 
     fn try_from(quantity: DynQuantity<V>) -> Result<Self, Self::Error> {
-        // Check dimensional correctness (compare runtime to compile-time unit exponents)
+        // Check dimensional correctness (compare runtime to compile-time unit
+        // exponents)
         let expected = Unit {
             second: T::to_i32(),
             meter: L::to_i32(),
@@ -162,7 +165,28 @@ where
     V: F64RealOrComplex,
 {
     fn from(
-        quantitiy: uom::si::Quantity<uom::si::ISQ<L, M, T, I, Th, N, J, K>, uom::si::SI<f64>, f64>,
+        quantity: uom::si::Quantity<uom::si::ISQ<L, M, T, I, Th, N, J, K>, uom::si::SI<f64>, f64>,
+    ) -> Self {
+        return Self::from(&quantity);
+    }
+}
+
+impl<L, M, T, I, Th, N, J, K, V>
+    From<&uom::si::Quantity<uom::si::ISQ<L, M, T, I, Th, N, J, K>, uom::si::SI<f64>, f64>>
+    for DynQuantity<V>
+where
+    L: uom::typenum::Integer,
+    M: uom::typenum::Integer,
+    T: uom::typenum::Integer,
+    I: uom::typenum::Integer,
+    Th: uom::typenum::Integer,
+    N: uom::typenum::Integer,
+    J: uom::typenum::Integer,
+    K: ?Sized,
+    V: F64RealOrComplex,
+{
+    fn from(
+        quantity: &uom::si::Quantity<uom::si::ISQ<L, M, T, I, Th, N, J, K>, uom::si::SI<f64>, f64>,
     ) -> Self {
         let exponents = Unit {
             second: T::to_i32(),
@@ -173,7 +197,7 @@ where
             mol: N::to_i32(),
             candela: J::to_i32(),
         };
-        return DynQuantity::new(V::from_f64(quantitiy.value), exponents);
+        return DynQuantity::new(V::from_f64(quantity.value.clone()), exponents);
     }
 }
 
@@ -199,13 +223,13 @@ where
     type Error = NotConvertibleFromComplexF64;
 
     fn try_from(
-        quantitiy: uom::si::Quantity<
+        quantity: uom::si::Quantity<
             uom::si::ISQ<L, M, T, I, Th, N, J, K>,
             uom::si::SI<Complex<f64>>,
             Complex<f64>,
         >,
     ) -> Result<Self, Self::Error> {
-        let value = V::try_from_complexf64(quantitiy.value)?;
+        let value = V::try_from_complexf64(quantity.value)?;
 
         let exponents = Unit {
             second: T::to_i32(),
