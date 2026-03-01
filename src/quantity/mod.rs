@@ -592,6 +592,24 @@ impl From<DynQuantity<f64>> for DynQuantity<Complex<f64>> {
     }
 }
 
+impl From<&DynQuantity<f64>> for DynQuantity<f64> {
+    fn from(value: &DynQuantity<f64>) -> Self {
+        return DynQuantity::new(value.value, value.unit);
+    }
+}
+
+impl From<&DynQuantity<f64>> for DynQuantity<Complex<f64>> {
+    fn from(value: &DynQuantity<f64>) -> Self {
+        return DynQuantity::new(Complex::new(value.value, 0.0), value.unit);
+    }
+}
+
+impl From<&DynQuantity<Complex<f64>>> for DynQuantity<Complex<f64>> {
+    fn from(value: &DynQuantity<Complex<f64>>) -> Self {
+        return DynQuantity::new(value.value, value.unit);
+    }
+}
+
 impl From<f64> for DynQuantity<f64> {
     fn from(value: f64) -> Self {
         return DynQuantity::new(value, Unit::default());
