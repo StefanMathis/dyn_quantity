@@ -12,9 +12,6 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::RootError;
 
-#[cfg(feature = "serde")]
-mod serde_impl;
-
 /**
 Struct representing a unit of measurement in the SI system via the exponents of
 the base units. The unit is purely defined by the values of its fields, meaning
@@ -180,7 +177,8 @@ impl Unit {
         return Ok(self);
     }
 
-    /// Returns whether [`Unit`] is dimensionless (all exponents are zero) or not.
+    /// Returns whether [`Unit`] is dimensionless (all exponents are zero) or
+    /// not.
     pub fn is_dimensionless(&self) -> bool {
         return self.second == 0
             && self.meter == 0
@@ -594,6 +592,88 @@ impl From<PredefUnit> for Unit {
                 mol: 0,
                 candela: 0,
             },
+        }
+    }
+}
+
+#[cfg(feature = "serde")]
+mod serde_impl {
+    /*!
+    This module is only available if the [`serde`] feature is enabled.
+    It contains the serialization and deserialization implementations for
+    [`Unit`].
+    */
+    use super::{PredefUnit, Unit};
+    use deserialize_untagged_verbose_error::DeserializeUntaggedVerboseError;
+    use serde::de::{Deserialize, Deserializer};
+    use serde::ser::{Serialize, SerializeStruct, Serializer};
+
+    impl Serialize for Unit {
+        fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where
+            S: Serializer,
+        {
+            let mut state = serializer.serialize_struct("Unit", 7)?;
+            state.serialize_field("second", &self.second)?;
+            state.serialize_field("meter", &self.meter)?;
+            state.serialize_field("kilogram", &self.kilogram)?;
+            state.serialize_field("ampere", &self.ampere)?;
+            state.serialize_field("kelvin", &self.kelvin)?;
+            state.serialize_field("mol", &self.mol)?;
+            state.serialize_field("candela", &self.candela)?;
+            state.end()
+        }
+    }
+
+    #[derive(serde::Deserialize)]
+    struct UnitAlias {
+        second: i32,
+        meter: i32,
+        kilogram: i32,
+        ampere: i32,
+        kelvin: i32,
+        mol: i32,
+        candela: i32,
+    }
+
+    /**
+    An [`Unit`] can be deserialized a couple of different representations.
+     */
+    #[derive(DeserializeUntaggedVerboseError)]
+    enum UnitVariants {
+        /**
+        Native representation of [`Unit`] (via an alias struct in order
+        to avoid infinite recursion)-
+         */
+        Unit(UnitAlias),
+        /**
+        Deserialization from a [`PredefUnit`].
+         */
+        PredefUnit(PredefUnit),
+    }
+
+    impl<'de> Deserialize<'de> for Unit {
+        fn deserialize<D>(deserializer: D) -> Result<Unit, D::Error>
+        where
+            D: Deserializer<'de>,
+        {
+            let variants = UnitVariants::deserialize(deserializer)?;
+            match variants {
+                UnitVariants::Unit(alias) => {
+                    return Ok(Unit {
+                        second: alias.second,
+                        meter: alias.meter,
+                        kilogram: alias.kilogram,
+                        ampere: alias.ampere,
+                        kelvin: alias.kelvin,
+                        mol: alias.mol,
+                        candela: alias.candela,
+                    });
+                }
+                UnitVariants::PredefUnit(common_units) => {
+                    return Ok(common_units.into());
+                }
+            }
         }
     }
 }

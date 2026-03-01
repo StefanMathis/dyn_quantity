@@ -5,9 +5,14 @@ dyn_quantity
 [`Unit`]: https://docs.rs/dyn_quantity/{{VERSION}}/dyn_quantity/unit/struct.Unit.html
 [`Quantity`]: https://docs.rs/uom/latest/uom/si/struct.Quantity.html
 [`serde_impl`]: https://docs.rs/dyn_quantity/{{VERSION}}/dyn_quantity/quantity/serde_impl/index.html
+[`serialize_quantity`]: https://docs.rs/dyn_quantity/{{VERSION}}/dyn_quantity/quantity/serde_impl/fn.serialize_quantity.html
+[`serialize_quantity`]: https://docs.rs/dyn_quantity/{{VERSION}}/dyn_quantity/quantity/serde_impl/fn.serialize_with_units.html
+[`deserialize_quantity`]: https://docs.rs/dyn_quantity/{{VERSION}}/dyn_quantity/quantity/serde_impl/fn.deserialize_quantity.html
 [`FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
 [`from_str_impl`]: https://docs.rs/dyn_quantity/{{VERSION}}/dyn_quantity/quantity/from_str_impl/index.html
 [dyn_quantity_lexer]: https://docs.rs/dyn_quantity_lexer/latest/dyn_quantity_lexer/index.html
+
+A crate for dealing with quantities where the units are only known at runtime.
 
 > **Feedback welcome!**  
 > Found a bug, missing docs, or have a feature request?  
@@ -17,8 +22,8 @@ The strong type system of rust allows defining physical quantities as types -
 see for example the [uom](https://docs.rs/uom/latest/uom/) crate. This is very
 useful to evaluate the correctness of calculations at compile time. Sometimes
 however, the type of a physical quantity is not known until runtime - for
-example, when parsing a user-provided string (requires feature `from_str` to
-be enabled). This is where this crate comes into play:
+example, when parsing a user-provided string. This is where this crate comes
+into play:
 
 ```rust
 use std::str::FromStr;
@@ -29,6 +34,7 @@ Parse a string into a physical quantity. The string can contain simple
 mathematical operations as well as scientific notation. If there is no
 operand specified between individual components (numbers or physical units),
 multiplication is assumed. The resulting value is calculated while parsing.
+Only possible if the `from_str` feature is enabled.
 */
 let quantity = DynQuantity::<f64>::from_str("4e2 pi mWb / (2*s^3)^2").expect("valid");
 
@@ -45,9 +51,6 @@ assert_eq!(quantity.unit.kelvin, 0);
 assert_eq!(quantity.unit.mol, 0);
 assert_eq!(quantity.unit.candela, 0);
 ```
-
-The docstring of the [`from_str_impl`] module provides a complete documentation of
-the available parsing syntax.
 
 # Overview
 
@@ -118,9 +121,7 @@ assert_eq!(res.value, 3.0);
 assert!(quantity.try_nthroot(4).is_err());
 ```
 
-# Conversion into statically-typed quantities
-
-The uom integration is gated behind the `uom` feature flag.
+# Conversion into and from statically-typed quantities
 
 One of the main features of [`DynQuantity`] is its capability to bridge the gap
 between uom's [`Quantity`] type (units defined at compile time) and user-provided
@@ -147,15 +148,78 @@ assert!(Velocity::try_from(quantity).is_err());
 The reverse conversion from a [`Quantity`] to a [`DynQuantity`] is always
 possible via the `From` implementation.
 
+These features are only available if the `uom` feature is enabled.
+
 # Serialization and deserialization
 
 The serde integration is gated behind the `serde` feature flag.
+
+## Serialization
+
+The [`serde_impl`] offers a couple of functions for customizing the
+serialization behaviour of types which implement `Into<DynQuantity>`. For
+example, if the `uom` feature is enabled, it is possible to serialize a
+[`Quantity`] with its units by setting a serialization context via the
+[`serialize_with_units`] function. This context is then used by the
+[`serialize_quantity`] annotation function and its variants:
+
+```rust
+use serde::{Serialize};
+use uom::si::{f64::*, length::kilometer, magnetic_flux_density::millitesla};
+use dyn_quantity::*;
+use indoc::indoc;
+
+#[derive(Serialize, Debug)]
+struct Quantities {
+    #[serde(serialize_with = "serialize_quantity")]
+    length: Length,
+    #[serde(serialize_with = "serialize_opt_quantity")]
+    opt_magnetic_flux_density: Option<MagneticFluxDensity>,
+    #[serde(serialize_with = "serialize_angle")]
+    angle: f64,
+    #[serde(serialize_with = "serialize_opt_angle")]
+    opt_angle: Option<f64>,
+}
+
+let quantities = Quantities {
+    length: Length::new::<kilometer>(1.0),
+    opt_magnetic_flux_density: Some(MagneticFluxDensity::new::<millitesla>(1.0)),
+    angle: 1.0,
+    opt_angle: Some(2.0),
+};
+
+// Without units (standard serialization)
+let expected = indoc! {"
+---
+length: 1000.0
+opt_magnetic_flux_density: 0.001
+angle: 1.0
+opt_angle: 2.0
+
+"};
+let actual = serde_yaml::to_string(&quantities).expect("serialization succeeds");
+assert_eq!(expected, actual);
+
+// With units
+let expected = indoc! {"
+---
+length: 1000 m
+opt_magnetic_flux_density: 0.001 s^-2 kg A^-1
+angle: 1 rad
+opt_angle: 2 rad
+
+"};
+let actual = serialize_with_units(||{serde_yaml::to_string(&quantities)}).expect("serialization succeeds");
+assert_eq!(expected, actual);
+```
+
+## Deserialization
 
 A [`DynQuantity`] can be deserialized from its "natural" struct representation
 or directly from a string (by first deserializing into a string and then using
 the [`FromStr`] implementation). In addition, a couple of functions for usage
 with the [`deserialize_with`](https://serde.rs/field-attrs.html#deserialize_with)
-field attribute are provided:
+field attribute are provided in the [`serde_impl`] module:
 
 ```rust
 use serde::{Deserialize};
@@ -176,11 +240,8 @@ length: 1200 mm
 let wrapper: LengthWrapper = serde_yaml::from_str(&ser).unwrap();
 assert_eq!(wrapper.length.get::<meter>(), 1.2);
 ```
-The [`serde_impl`] module holds all available functions.
 
 # Parsing strings
-
-The ability to parse strings is gated behind the `from_str` feature flag.
 
 An important part of any parser is the
 [lexer](https://en.wikipedia.org/wiki/Lexical_analysis), which converts the
@@ -191,8 +252,8 @@ The full syntax documentation is available at [`from_str_impl`].
 This crate uses the [logos](https://docs.rs/logos/latest/logos/) crate (inside
 [dyn_quantity_lexer]) to generate a high-performance lexer via a procedural
 macro at compile time. The disadvantage of this approach is the long compile
-time caused by the procedural macro, hence this feature is hidden behing a
-feature flag.
+time caused by the procedural macro, hence this feature is hidden behind the
+`from_str` feature flag.
 
 # Documentation
 

@@ -1,6 +1,15 @@
 /*!
-This module contains the [`DynQuantity`] struct and supporting code. See the
-documentation string of [`DynQuantity`] for more information.
+This module contains the [`DynQuantity`] struct and code for:
+- Interaction with a [`DynQuantity`]: Basic arithmetic operation, conversion
+from and into other types, formatting, etc.
+- Parsing of strings into [`DynQuantity`]s: See [`from_str_impl`] only available
+if the `from_str` feature is enabled).
+- Serialization and deserialization: See [`serde_impl`] (only available if the
+`serde` feature is enabled).
+- Conversion from and into [`uom::si::Quantity`] : See [`uom_impl`] (only
+available if the `uom` feature is enabled).
+
+See the documentation string of [`DynQuantity`] for more information.
 */
 
 use num::Complex;
