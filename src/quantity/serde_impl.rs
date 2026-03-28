@@ -252,7 +252,7 @@ where
 }
 
 /**
-Like [`serialize_quantity`], but serializes an [`&Option<T>`]
+Like [`serialize_quantity`], but serializes an `&Option<T>`
 instead of a `&T` implementing [`Into<DynQuantity>`].
 
 For examples see the [`serialize_with_units`] documentation.
@@ -297,7 +297,7 @@ where
 }
 
 /**
-Like [`serialize_angle`], but serializes an [`&Option<T>`]
+Like [`serialize_angle`], but serializes an `&Option<T>`
 instead of a `&T` implementing [`Into<DynQuantity>`].
 
 For examples see the [`serialize_with_units`] documentation.
