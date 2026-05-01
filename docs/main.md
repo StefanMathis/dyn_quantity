@@ -140,7 +140,7 @@ The serde integration is gated behind the `serde` feature flag.
 
 ## Serialization
 
-The [`serde_impl`] offers a couple of functions for customizing the
+The [`serde_impl`] module offers a couple of functions for customizing the
 serialization behaviour of types which implement `Into<DynQuantity>`. For
 example, if the `uom` feature is enabled, it is possible to serialize a
 [`Quantity`] with its units by setting a serialization context via the
