@@ -10,9 +10,9 @@ This module implements [`std::str::FromStr`] for [`DynQuantity`].
 A [`DynQuantity`] can be parsed from a string which combines numbers, units,
 mathematical operators and brackets using the following syntax.
 
-## Inners
+## Values
 
-Inners can be either integers or floats. Imaginary numbers need to have
+Values can be either integers or floats. Imaginary numbers need to have
 either an `i` or `j` behind the numerical value (with or without a space).
 For example, the following strings are all parsed to the same [`DynQuantity`]:
 `2 i`, `2j`, `2.0 j`, `2.0i`.
@@ -83,7 +83,7 @@ the unit `mm^2` is equivalent to `1e-6 m^2`
 
 ## Operators
 
-Inners and units can be combined via mathematical operators.
+Values and units can be combined via arithmetic operators.
 While numbers always need to have an operator in between them, it is possible to
 omit them when combining different units or units with numbers (a multiplication
 operator is then inserted implicitly). For example, the following strings all
@@ -366,17 +366,19 @@ fn from_str_complexf64(s: &str) -> Result<DynQuantity<Complex<f64>>, ParseError>
 
     let mut active_quantity: Option<DynQuantity<Complex<f64>>> = None;
 
-    // This is a stack of quantities. Two quantities are separated by a mathematical operator
-    // which defines how the quantities are combined. THe last operator is combined with "active_quantity".
-    // For example, stack = [Add(x), Mul(y)] and active_quantity = Some(z), where x, y and z are quantities would
+    // This is a stack of quantities. Two quantities are separated by a mathematical
+    // operator which defines how the quantities are combined. THe last operator
+    // is combined with "active_quantity". For example, stack = [Add(x), Mul(y)]
+    // and active_quantity = Some(z), where x, y and z are quantities would
     // be combined as follows:
     // x + y * z
     let mut stack: Vec<Operation> = Vec::new();
 
-    // The bracket level increases by one for each open bracket "(" and decreases by one for each closing
-    // bracket ")". At the end of the parsing, the bracket level must be zero. Additionally, it may never become
-    // negative, therefore we always use checked_sub. If it would become negative or is not zero at the end,
-    // an error is returned.
+    // The bracket level increases by one for each open bracket "(" and decreases by
+    // one for each closing bracket ")". At the end of the parsing, the bracket
+    // level must be zero. Additionally, it may never become negative, therefore
+    // we always use checked_sub. If it would become negative or is not zero at the
+    // end, an error is returned.
     let mut bracket_level: usize = 0;
 
     let mut previous_token = PreviousToken::Other;
@@ -458,7 +460,8 @@ fn from_str_complexf64(s: &str) -> Result<DynQuantity<Complex<f64>>, ParseError>
                 previous_token = PreviousToken::Div;
                 division_pending = true;
 
-                // Short-circuit to retain previous_token and division_pending into the next division
+                // Short-circuit to retain previous_token and division_pending into the next
+                // division
                 continue;
             }
             Token::Percent => {
@@ -490,7 +493,8 @@ fn from_str_complexf64(s: &str) -> Result<DynQuantity<Complex<f64>>, ParseError>
                 bracket_level += 1;
             }
             Token::RightBracket(exponent) => match bracket_level.checked_sub(1) {
-                // Merge all stack elements with the current bracket up to and including the first "multiply".
+                // Merge all stack elements with the current bracket up to and including the first
+                // "multiply".
                 Some(val) => {
                     if let Some(mut quantity) = active_quantity.take() {
                         while let Some(stack_item) = stack.pop() {
@@ -599,7 +603,8 @@ fn from_str_complexf64(s: &str) -> Result<DynQuantity<Complex<f64>>, ParseError>
             Token::Gram(mut exponents) => {
                 adjust(&mut active_quantity, |quantity| {
                     quantity.unit.kilogram += exponents.unit;
-                    // Special treatment of gram: The prefix needs to be reduced by 3, since the SI system works in kilogram
+                    // Special treatment of gram: The prefix needs to be reduced by 3, since the SI
+                    // system works in kilogram
                     exponents.prefix -= 3;
                     quantity.value *= 10f64.powi(exponents.exponent());
                 });
@@ -631,7 +636,8 @@ fn from_str_complexf64(s: &str) -> Result<DynQuantity<Complex<f64>>, ParseError>
             Token::Celsius(exponents) => {
                 adjust(&mut active_quantity, |quantity| {
                     quantity.unit.kelvin += exponents.unit;
-                    // Special treatment of celsius: The value needs to be corrected by an offset of -273.15 to the power of the unit exponent
+                    // Special treatment of celsius: The value needs to be corrected by an offset of
+                    // -273.15 to the power of the unit exponent
                     quantity.value += (273.15f64).powi(exponents.unit);
                     quantity.value *= 10f64.powi(exponents.exponent());
                 });
@@ -755,8 +761,8 @@ fn from_str_complexf64(s: &str) -> Result<DynQuantity<Complex<f64>>, ParseError>
             }
         }
 
-        // If the last element of the stack is a division and the next token was no open bracket,
-        // perform the division immediately
+        // If the last element of the stack is a division and the next token was no open
+        // bracket, perform the division immediately
         if division_pending {
             if let Some(last_stack_item) = stack.last() {
                 if let Operation::Div(_) = last_stack_item {
@@ -770,8 +776,8 @@ fn from_str_complexf64(s: &str) -> Result<DynQuantity<Complex<f64>>, ParseError>
                     }
                 }
             } else {
-                // Division without stack item would mean that the string looks something like this: "/3"
-                // This results in a parse error
+                // Division without stack item would mean that the string looks something like
+                // this: "/3" This results in a parse error
                 let reason = ParseErrorReason::UnbalancedBrackets;
                 return Err(ParseError {
                     substring: s[lexer.span()].to_owned(),

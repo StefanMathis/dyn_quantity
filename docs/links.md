@@ -14,6 +14,7 @@ modify the components. -->
 [`deserialize_quantity`]: https://docs.rs/dyn_quantity/{{VERSION}}/dyn_quantity/quantity/serde_impl/fn.deserialize_quantity.html
 [`FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
 [`from_str_impl`]: https://docs.rs/dyn_quantity/{{VERSION}}/dyn_quantity/quantity/from_str_impl/index.html
+[`uom_impl`]: https://docs.rs/dyn_quantity/{{VERSION}}/dyn_quantity/quantity/uom_impl/index.html
 [dyn_quantity_lexer]: https://docs.rs/dyn_quantity_lexer/latest/dyn_quantity_lexer/index.html
 
 [![Documentation](https://docs.rs/dyn_quantity/badge.svg)](https://docs.rs/dyn_quantity)

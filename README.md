@@ -5,22 +5,23 @@ dyn_quantity
 docs/main.md and (if available docs/end.md). Do not modify this file, instead
 modify the components. -->
 
-[`DynQuantity`]: https://docs.rs/dyn_quantity/0.5.10/dyn_quantity/quantity/struct.DynQuantity.html
-[`Unit`]: https://docs.rs/dyn_quantity/0.5.10/dyn_quantity/unit/struct.Unit.html
+[`DynQuantity`]: https://docs.rs/dyn_quantity/0.5.11/dyn_quantity/quantity/struct.DynQuantity.html
+[`Unit`]: https://docs.rs/dyn_quantity/0.5.11/dyn_quantity/unit/struct.Unit.html
 [`Quantity`]: https://docs.rs/uom/latest/uom/si/struct.Quantity.html
-[`serde_impl`]: https://docs.rs/dyn_quantity/0.5.10/dyn_quantity/quantity/serde_impl/index.html
-[`serialize_quantity`]: https://docs.rs/dyn_quantity/0.5.10/dyn_quantity/quantity/serde_impl/fn.serialize_quantity.html
-[`serialize_with_units`]: https://docs.rs/dyn_quantity/0.5.10/dyn_quantity/quantity/serde_impl/fn.serialize_with_units.html
-[`deserialize_quantity`]: https://docs.rs/dyn_quantity/0.5.10/dyn_quantity/quantity/serde_impl/fn.deserialize_quantity.html
+[`serde_impl`]: https://docs.rs/dyn_quantity/0.5.11/dyn_quantity/quantity/serde_impl/index.html
+[`serialize_quantity`]: https://docs.rs/dyn_quantity/0.5.11/dyn_quantity/quantity/serde_impl/fn.serialize_quantity.html
+[`serialize_with_units`]: https://docs.rs/dyn_quantity/0.5.11/dyn_quantity/quantity/serde_impl/fn.serialize_with_units.html
+[`deserialize_quantity`]: https://docs.rs/dyn_quantity/0.5.11/dyn_quantity/quantity/serde_impl/fn.deserialize_quantity.html
 [`FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
-[`from_str_impl`]: https://docs.rs/dyn_quantity/0.5.10/dyn_quantity/quantity/from_str_impl/index.html
+[`from_str_impl`]: https://docs.rs/dyn_quantity/0.5.11/dyn_quantity/quantity/from_str_impl/index.html
+[`uom_impl`]: https://docs.rs/dyn_quantity/0.5.11/dyn_quantity/quantity/uom_impl/index.html
 [dyn_quantity_lexer]: https://docs.rs/dyn_quantity_lexer/latest/dyn_quantity_lexer/index.html
 
 [![Documentation](https://docs.rs/dyn_quantity/badge.svg)](https://docs.rs/dyn_quantity)
 
 A crate for dealing with quantities where the units are only known at runtime.
 
-The full API documentation is available at https://docs.rs/dyn_quantity/0.5.10/dyn_quantity.
+The full API documentation is available at https://docs.rs/dyn_quantity/0.5.11/dyn_quantity.
 
 > **Feedback welcome!**  
 > Found a bug, missing docs, or have a feature request?  
@@ -133,10 +134,30 @@ assert!(quantity.try_nthroot(4).is_err());
 
 One of the main features of [`DynQuantity`] is its capability to bridge the gap
 between uom's [`Quantity`] type (units defined at compile time) and user-provided
-input where the units are only known at runtime. For example, a user-provided
-string can fallibly be parsed into a `Length`. This is a two-step operation,
-where the string is first parsed into a [`DynQuantity`] and then converted
-into a `Length` via `TryFrom`:
+input where the units are only known at runtime. This is realized via the
+`From` and `TryFrom` implementations in the [`uom_impl`] module:
+
+```rust
+use uom::si::{f64::{Length, Velocity}, length::millimeter};
+use dyn_quantity::{DynQuantity, PredefUnit};
+
+let length_dyn = DynQuantity::new(0.12, PredefUnit::Length);
+
+// Fallible conversion into a statically-typed Length
+let length = Length::try_from(length_dyn).expect("units match");
+assert_eq!(length.get::<millimeter>(), 120.0);
+
+// Trying to convert quantity into a Velocity fails because the type does not
+// match the unit exponents
+assert!(Velocity::try_from(length_dyn).is_err());
+
+// Conversion into a DynQuantity is infallible
+let length_dyn_conv = DynQuantity::from(length);
+assert_eq!(length_dyn, length_dyn_conv);
+```
+
+When combined with the [`FromStr] implementation, this enables parsing a string
+into a static [`Quantity`] such as a `Length` in two steps:
 
 ```rust
 use std::str::FromStr;
@@ -147,10 +168,6 @@ let input = "2 mm / s * 0.5 s";
 let quantity = DynQuantity::<f64>::from_str(input).expect("valid");
 let length: Length = quantity.clone().try_into().expect("valid");
 assert_eq!(length.get::<meter>(), 0.001);
-
-// Trying to convert quantity into a Velocity fails because the type does not
-// match the unit exponents:
-assert!(Velocity::try_from(quantity).is_err());
 ```
 
 The reverse conversion from a [`Quantity`] to a [`DynQuantity`] is always

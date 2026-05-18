@@ -103,7 +103,7 @@ pub enum ParseErrorReason {
     /// - "5 32": Invalid because it is unclear how the numbers should
     /// combined in the resulting [`DynQuantity`](crate::quantity::DynQuantity).
     /// - "5 * 32": Valid
-    TwoInnersWithoutOperator,
+    TwoValuesWithoutOperator,
     /// Two operators without a number inbetween are in the string:
     /// - "3 / * 2": Invalid
     /// - "3 / 1 * 2": Valid
@@ -137,7 +137,7 @@ impl std::fmt::Display for ParseErrorReason {
             ParseErrorReason::UnbalancedBrackets => {
                 write!(f, "unbalanced number of brackets")
             }
-            ParseErrorReason::TwoInnersWithoutOperator => {
+            ParseErrorReason::TwoValuesWithoutOperator => {
                 write!(
                     f,
                     "encountered two numbers without an operator (+ or -) between them"

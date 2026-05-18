@@ -8,6 +8,7 @@
 [`deserialize_quantity`]: crate::quantity::serde_impl::deserialize_quantity
 [`FromStr`]: std::str::FromStr
 [`from_str_impl`]: crate::quantity::from_str_impl
+[`uom_impl`]: crate::quantity::uom_impl
 [dyn_quantity_lexer]: dyn_quantity_lexer
 
 A lightweight (only one dependency with 18 SLoC) implementation of a 1d Akima

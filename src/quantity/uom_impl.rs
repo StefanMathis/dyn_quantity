@@ -7,6 +7,31 @@ at compile time via the type system.
 
 In constrast, conversion from a [`Quantity`] to a [`DynQuantity`] is infallible
 and is therefore realized via a [`From`] implementation.
+
+# Examples
+
+```
+use uom::si::{f64::{ElectricCurrent, ElectricPotential}, electric_current::milliampere, electric_potential::kilovolt};
+use dyn_quantity::{DynQuantity, Unit, PredefUnit};
+
+let curr_dyn = DynQuantity::new(4.2, PredefUnit::ElectricCurrent);
+
+// Fallible conversion into a statically-typed ElectricCurrent
+let current = ElectricCurrent::try_from(curr_dyn).expect("units match");
+assert_eq!(current.get::<milliampere>(), 4200.0);
+
+// Trying to convert quantity into an ElectricVoltage fails because the type
+// does not match the unit exponents
+assert!(ElectricPotential::try_from(curr_dyn).is_err());
+
+// Conversion into a DynQuantity is infallible
+let curr_dyn_conv = DynQuantity::from(current);
+assert_eq!(curr_dyn, curr_dyn_conv);
+
+let voltage_dyn_conv = DynQuantity::<f64>::from(ElectricPotential::new::<kilovolt>(20.0));
+assert_eq!(voltage_dyn_conv.value, 20000.0);
+assert_eq!(voltage_dyn_conv.unit, Unit::from(PredefUnit::ElectricVoltage));
+```
 */
 
 use num::{Zero, complex::Complex};
