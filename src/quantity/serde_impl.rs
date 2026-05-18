@@ -111,8 +111,8 @@ use num::Complex;
 use serde::{Deserialize, Deserializer, de::DeserializeOwned};
 
 #[derive(DeserializeUntaggedVerboseError)]
-enum InnerOrString<T> {
-    Inner(T),
+enum NumberOrString<T> {
+    Number(T),
     #[cfg(feature = "from_str")]
     String(String),
 }
@@ -394,13 +394,13 @@ where
     T: DeserializeOwned + TryFrom<DynQuantity<Complex<f64>>>,
     <T as TryFrom<DynQuantity<Complex<f64>>>>::Error: std::fmt::Display,
 {
-    let quantity = Option::<InnerOrString<_>>::deserialize(deserializer)?;
+    let quantity = Option::<NumberOrString<_>>::deserialize(deserializer)?;
     match quantity {
         Some(number_or_string) => {
             match number_or_string {
-                InnerOrString::Inner(quantity) => Ok(Some(quantity)),
+                NumberOrString::Number(quantity) => Ok(Some(quantity)),
                 #[cfg(feature = "from_str")]
-                InnerOrString::String(string) => {
+                NumberOrString::String(string) => {
                     // Deserialize using the SI unit parser
                     let quantity = DynQuantity::<Complex<f64>>::from_str(&string)
                         .map_err(serde::de::Error::custom)?;
@@ -487,13 +487,13 @@ pub fn deserialize_opt_angle<'de, D>(deserializer: D) -> Result<Option<f64>, D::
 where
     D: serde::de::Deserializer<'de>,
 {
-    let quantity = Option::<InnerOrString<f64>>::deserialize(deserializer)?;
+    let quantity = Option::<NumberOrString<f64>>::deserialize(deserializer)?;
     match quantity {
         Some(number_or_string) => {
             match number_or_string {
-                InnerOrString::Inner(quantity) => Ok(Some(quantity)),
+                NumberOrString::Number(quantity) => Ok(Some(quantity)),
                 #[cfg(feature = "from_str")]
-                InnerOrString::String(string) => {
+                NumberOrString::String(string) => {
                     // Deserialize using the SI unit parser
                     let quantity =
                         DynQuantity::<f64>::from_str(&string).map_err(serde::de::Error::custom)?;
@@ -722,19 +722,19 @@ where
                     None => QuantityVec(Vec::new()),
                 };
 
-                let first_value = match seq.next_element::<InnerOrString<T>>()? {
+                let first_value = match seq.next_element::<NumberOrString<T>>()? {
                     Some(element) => element,
                     None => return Ok(vec), // Empty vec
                 };
 
                 match first_value {
-                    InnerOrString::Inner(number) => {
+                    NumberOrString::Number(number) => {
                         vec.0.push(number);
-                        while let Some(quantity_rep) = seq.next_element::<InnerOrString<T>>()? {
+                        while let Some(quantity_rep) = seq.next_element::<NumberOrString<T>>()? {
                             match quantity_rep {
-                                InnerOrString::Inner(quantity) => vec.0.push(quantity),
+                                NumberOrString::Number(quantity) => vec.0.push(quantity),
                                 #[cfg(feature = "from_str")]
-                                InnerOrString::String(_) => {
+                                NumberOrString::String(_) => {
                                     return Err(serde::de::Error::custom(
                                         "either all elements of the vector must have the same quantity, or no element must have a quantity",
                                     ));
@@ -743,23 +743,23 @@ where
                         }
                     }
                     #[cfg(feature = "from_str")]
-                    InnerOrString::String(string) => {
+                    NumberOrString::String(string) => {
                         let first_element =
                             DynQuantity::from_str(&string).map_err(serde::de::Error::custom)?;
                         let output_element =
                             first_element.try_into().map_err(serde::de::Error::custom)?;
                         vec.0.push(output_element);
 
-                        while let Some(quantity_rep) = seq.next_element::<InnerOrString<T>>()? {
+                        while let Some(quantity_rep) = seq.next_element::<NumberOrString<T>>()? {
                             // Loop through all other elements and check if their unit is equal to
                             // first_element_unit
                             match quantity_rep {
-                                InnerOrString::Inner(_) => {
+                                NumberOrString::Number(_) => {
                                     return Err(serde::de::Error::custom(
                                         "either all elements of the vector must have the same quantity, or no element must have a quantity",
                                     ));
                                 }
-                                InnerOrString::String(string) => {
+                                NumberOrString::String(string) => {
                                     let element = DynQuantity::<Complex<f64>>::from_str(&string)
                                         .map_err(serde::de::Error::custom)?;
                                     if element.unit != first_element.unit {
@@ -797,34 +797,34 @@ mod tests {
     #[test]
     fn test_deserialize_number_or_string() {
         {
-            let value: InnerOrString<DynQuantity<f64>> = serde_yaml::from_str("1.0").unwrap();
+            let value: NumberOrString<DynQuantity<f64>> = serde_yaml::from_str("1.0").unwrap();
             match value {
-                InnerOrString::Inner(value) => {
+                NumberOrString::Number(value) => {
                     assert_eq!(value.value, 1.0);
                 }
-                InnerOrString::String(_) => unreachable!(),
+                NumberOrString::String(_) => unreachable!(),
             }
         }
         {
-            let value: InnerOrString<DynQuantity<f64>> = serde_yaml::from_str("1.0 A").unwrap();
+            let value: NumberOrString<DynQuantity<f64>> = serde_yaml::from_str("1.0 A").unwrap();
             match value {
-                InnerOrString::Inner(value) => {
+                NumberOrString::Number(value) => {
                     assert_eq!(value.value, 1.0);
                     assert_eq!(value.unit.ampere, 1);
                 }
-                InnerOrString::String(_) => unreachable!(),
+                NumberOrString::String(_) => unreachable!(),
             }
         }
         {
-            let value: InnerOrString<DynQuantity<Complex<f64>>> =
+            let value: NumberOrString<DynQuantity<Complex<f64>>> =
                 serde_yaml::from_str("1.0 A").unwrap();
             match value {
-                InnerOrString::Inner(value) => {
+                NumberOrString::Number(value) => {
                     assert_eq!(value.value.re, 1.0);
                     assert_eq!(value.value.im, 0.0);
                     assert_eq!(value.unit.ampere, 1);
                 }
-                InnerOrString::String(_) => unreachable!(),
+                NumberOrString::String(_) => unreachable!(),
             }
         }
     }
