@@ -131,7 +131,7 @@ let length_dyn_conv = DynQuantity::from(length);
 assert_eq!(length_dyn, length_dyn_conv);
 ```
 
-When combined with the [`FromStr] implementation, this enables parsing a string
+When combined with the [`FromStr`] implementation, this enables parsing a string
 into a static [`Quantity`] such as a `Length` in two steps:
 
 ```rust
