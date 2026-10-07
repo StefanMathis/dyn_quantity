@@ -197,7 +197,7 @@ angle: 1.0
 opt_angle: 2.0
 
 "};
-let actual = serde_yaml::to_string(&quantities).expect("serialization succeeds");
+let actual = yaml_serde::to_string(&quantities).expect("serialization succeeds");
 assert_eq!(expected, actual);
 
 // With units
@@ -209,7 +209,7 @@ angle: 1 rad
 opt_angle: 2 rad
 
 "};
-let actual = serialize_with_units(||{serde_yaml::to_string(&quantities)}).expect("serialization succeeds");
+let actual = serialize_with_units(||{yaml_serde::to_string(&quantities)}).expect("serialization succeeds");
 assert_eq!(expected, actual);
 ```
 
@@ -237,7 +237,7 @@ let ser = indoc! {"
 ---
 length: 1200 mm
 "};
-let wrapper: LengthWrapper = serde_yaml::from_str(&ser).unwrap();
+let wrapper: LengthWrapper = yaml_serde::from_str(&ser).unwrap();
 assert_eq!(wrapper.length.get::<meter>(), 1.2);
 ```
 

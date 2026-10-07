@@ -34,11 +34,11 @@ use dyn_quantity::Unit;
 
 // Direct deserialization
 let str = "---\nsecond: -3\nmeter: 2\nkilogram: 1\nampere: -1\nkelvin: 0\nmol: 0\ncandela: 0";
-let unit_direct: Unit = serde_yaml::from_str(str).unwrap();
+let unit_direct: Unit = yaml_serde::from_str(str).unwrap();
 
 // Deserialization from PredefUnit
 let str = "ElectricVoltage";
-let unit_predef: Unit = serde_yaml::from_str(str).unwrap();
+let unit_predef: Unit = yaml_serde::from_str(str).unwrap();
 assert_eq!(unit_predef, unit_direct);
 ```
  */
@@ -302,7 +302,7 @@ implementation:
 use dyn_quantity::Unit;
 
 let str = "Volume";
-let unit: Unit = serde_yaml::from_str(str).unwrap();
+let unit: Unit = yaml_serde::from_str(str).unwrap();
 assert_eq!(unit.meter, 3);
 ```
  */

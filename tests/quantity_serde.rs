@@ -7,9 +7,9 @@ use serde::Deserialize;
 fn test_serialize_and_deserialize() {
     {
         let quantity = DynQuantity::new(1.0, Unit::default());
-        let string = serde_yaml::to_string(&quantity).unwrap();
+        let string = yaml_serde::to_string(&quantity).unwrap();
         println!("{string}");
-        let quantity_de = serde_yaml::from_str(&string).unwrap();
+        let quantity_de = yaml_serde::from_str(&string).unwrap();
         assert_eq!(quantity, quantity_de);
     }
 }
@@ -17,12 +17,12 @@ fn test_serialize_and_deserialize() {
 #[test]
 fn test_deserialize_from_string() {
     {
-        let quantity: DynQuantity<f64> = serde_yaml::from_str("1 mA").unwrap();
+        let quantity: DynQuantity<f64> = yaml_serde::from_str("1 mA").unwrap();
         assert_eq!(quantity.value, 1e-3);
         assert_eq!(quantity.unit.ampere, 1);
     }
     {
-        let quantity: DynQuantity<Complex<f64>> = serde_yaml::from_str("(1+2i) kg^2").unwrap();
+        let quantity: DynQuantity<Complex<f64>> = yaml_serde::from_str("(1+2i) kg^2").unwrap();
         assert_eq!(quantity.value, Complex::new(1.0, 2.0));
         assert_eq!(quantity.unit.kilogram, 2);
     }
@@ -31,8 +31,8 @@ fn test_deserialize_from_string() {
 #[test]
 fn test_deserialize_and_serialize() {
     {
-        let quantity: DynQuantity<f64> = serde_yaml::from_str("2 A*m").unwrap();
-        let res = serde_yaml::to_string(&quantity).unwrap();
+        let quantity: DynQuantity<f64> = yaml_serde::from_str("2 A*m").unwrap();
+        let res = yaml_serde::to_string(&quantity).unwrap();
         let expected = indoc! {"
         ---
         value: 2.0
@@ -48,8 +48,8 @@ fn test_deserialize_and_serialize() {
         assert_eq!(&res, &expected);
     }
     {
-        let quantity: DynQuantity<Complex<f64>> = serde_yaml::from_str("(1+2i) kg^2").unwrap();
-        let res = serde_yaml::to_string(&quantity).unwrap();
+        let quantity: DynQuantity<Complex<f64>> = yaml_serde::from_str("(1+2i) kg^2").unwrap();
+        let res = yaml_serde::to_string(&quantity).unwrap();
         assert_eq!(
             &res,
             "---\nvalue:\n  - 1.0\n  - 2.0\nunit:\n  second: 0\n  meter: 0\n  kilogram: 2\n  ampere: 0\n  kelvin: 0\n  mol: 0\n  candela: 0\n"
@@ -70,7 +70,7 @@ fn test_deserialize_vec_dyn_quantity() {
         ---
         vec: [2.0, 3.0, 4.0]
         "};
-        let wrapper: VecWrapper = serde_yaml::from_str(no_units).unwrap();
+        let wrapper: VecWrapper = yaml_serde::from_str(no_units).unwrap();
         assert_eq!(wrapper.vec[0].value, 2.0);
         assert_eq!(wrapper.vec[1].value, 3.0);
         assert_eq!(wrapper.vec[2].value, 4.0);
@@ -80,7 +80,7 @@ fn test_deserialize_vec_dyn_quantity() {
         ---
         vec: [2.0 T, 3.0 T, 4.0 T]
         "};
-        let wrapper: VecWrapper = serde_yaml::from_str(vec_of_quantites).unwrap();
+        let wrapper: VecWrapper = yaml_serde::from_str(vec_of_quantites).unwrap();
         assert_eq!(wrapper.vec[0].value, 2.0);
         assert_eq!(wrapper.vec[1].value, 3.0);
         assert_eq!(wrapper.vec[2].value, 4.0);
@@ -90,7 +90,7 @@ fn test_deserialize_vec_dyn_quantity() {
         ---
         vec: '[2.0, 3.0, 4.0] T'
         "};
-        let wrapper: VecWrapper = serde_yaml::from_str(quantity_vec).unwrap();
+        let wrapper: VecWrapper = yaml_serde::from_str(quantity_vec).unwrap();
         assert_eq!(wrapper.vec[0].value, 2.0);
         assert_eq!(wrapper.vec[1].value, 3.0);
         assert_eq!(wrapper.vec[2].value, 4.0);

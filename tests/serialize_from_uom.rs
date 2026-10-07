@@ -51,7 +51,7 @@ fn test_serialize_with_units() {
         angle: 1.0
         opt_angle: 2.0
         "};
-        let actual = serde_yaml::to_string(&quantities).expect("serialization succeeds");
+        let actual = yaml_serde::to_string(&quantities).expect("serialization succeeds");
         assert_eq!(expected, actual);
 
         // With units
@@ -62,7 +62,7 @@ fn test_serialize_with_units() {
         angle: 1 rad
         opt_angle: 2 rad
         "};
-        let actual = serialize_with_units(|| serde_yaml::to_string(&quantities))
+        let actual = serialize_with_units(|| yaml_serde::to_string(&quantities))
             .expect("serialization succeeds");
         assert_eq!(expected, actual);
     }
@@ -83,7 +83,7 @@ fn test_serialize_with_units() {
         angle: 1.0
         opt_angle: ~
         "};
-        let actual = serde_yaml::to_string(&quantities).expect("serialization succeeds");
+        let actual = yaml_serde::to_string(&quantities).expect("serialization succeeds");
         assert_eq!(expected, actual);
 
         // With units
@@ -94,7 +94,7 @@ fn test_serialize_with_units() {
         angle: 1 rad
         opt_angle: ~
         "};
-        let actual = serialize_with_units(|| serde_yaml::to_string(&quantities))
+        let actual = serialize_with_units(|| yaml_serde::to_string(&quantities))
             .expect("serialization succeeds");
         assert_eq!(expected, actual);
     }
@@ -110,9 +110,9 @@ fn test_serialize_and_deserialize() {
             angle: 1.0,
             opt_angle: Some(2.0),
         };
-        let ser = serialize_with_units(|| serde_yaml::to_string(&ser_quantities))
+        let ser = serialize_with_units(|| yaml_serde::to_string(&ser_quantities))
             .expect("serialization succeeds");
-        let de_quantities = serde_yaml::from_str(&ser).expect("deserialization succeeds");
+        let de_quantities = yaml_serde::from_str(&ser).expect("deserialization succeeds");
         assert_eq!(ser_quantities, de_quantities);
     }
     {
@@ -123,9 +123,9 @@ fn test_serialize_and_deserialize() {
             angle: 1.0,
             opt_angle: None,
         };
-        let ser = serialize_with_units(|| serde_yaml::to_string(&ser_quantities))
+        let ser = serialize_with_units(|| yaml_serde::to_string(&ser_quantities))
             .expect("serialization succeeds");
-        let de_quantities = serde_yaml::from_str(&ser).expect("deserialization succeeds");
+        let de_quantities = yaml_serde::from_str(&ser).expect("deserialization succeeds");
         assert_eq!(ser_quantities, de_quantities);
     }
 }
@@ -161,10 +161,10 @@ fn test_complicated_units() {
     voltage: 0.002 s^-3 m^2 kg A^-1
     mass_density: 8000 m^-3 kg
     "};
-    let actual = serialize_with_units(|| serde_yaml::to_string(&ser_composed))
+    let actual = serialize_with_units(|| yaml_serde::to_string(&ser_composed))
         .expect("serialization succeeds");
     assert_eq!(expected, actual);
 
-    let de_composed = serde_yaml::from_str(&actual).expect("deserialization succeeds");
+    let de_composed = yaml_serde::from_str(&actual).expect("deserialization succeeds");
     assert_eq!(ser_composed, de_composed);
 }

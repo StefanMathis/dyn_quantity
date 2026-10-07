@@ -18,26 +18,26 @@ fn test_deserialize_length() {
         ---
         quantity: 1000 mm
         "};
-    let first_val_de: LengthWrapper = serde_yaml::from_str(first_val).unwrap();
+    let first_val_de: LengthWrapper = yaml_serde::from_str(first_val).unwrap();
 
     let second_val = indoc! {"
         ---
         quantity: 1 m
         "};
-    let second_val_de: LengthWrapper = serde_yaml::from_str(second_val).unwrap();
+    let second_val_de: LengthWrapper = yaml_serde::from_str(second_val).unwrap();
 
     let third_val = indoc! {"
         ---
         quantity: 1
         "};
-    let third_val_de: LengthWrapper = serde_yaml::from_str(third_val).unwrap();
+    let third_val_de: LengthWrapper = yaml_serde::from_str(third_val).unwrap();
 
     assert_eq!(first_val_de, second_val_de);
     assert_eq!(first_val_de, third_val_de);
     assert_eq!(second_val_de, third_val_de);
 
-    let string = serde_yaml::to_string(&first_val_de).unwrap();
-    let fourth_val_de: LengthWrapper = serde_yaml::from_str(&string).unwrap();
+    let string = yaml_serde::to_string(&first_val_de).unwrap();
+    let fourth_val_de: LengthWrapper = yaml_serde::from_str(&string).unwrap();
 
     assert_eq!(first_val_de, fourth_val_de);
 }
@@ -49,7 +49,7 @@ fn test_dimension_mismatch() {
         ---
         quantity: 1 kg
         "};
-    let err: serde_yaml::Error = serde_yaml::from_str::<LengthWrapper>(second_val).unwrap_err();
+    let err: yaml_serde::Error = yaml_serde::from_str::<LengthWrapper>(second_val).unwrap_err();
     assert_eq!(
         "expected s^0 m^1 kg^0 A^0 K^0 mol^0 cd^0, found s^0 m^0 kg^1 A^0 K^0 mol^0 cd^0 at line 2 column 9",
         err.to_string()
@@ -69,7 +69,7 @@ fn test_deserialize_from_quantity_vec_real() {
             ---
             vec: [2.0, 3.0, 4.0]
             "};
-        let no_units_de: VecWrapper = serde_yaml::from_str(no_units).unwrap();
+        let no_units_de: VecWrapper = yaml_serde::from_str(no_units).unwrap();
         assert_eq!(no_units_de.vec[0].get::<tesla>(), 2.0);
         assert_eq!(no_units_de.vec[1].get::<tesla>(), 3.0);
         assert_eq!(no_units_de.vec[2].get::<tesla>(), 4.0);
@@ -78,7 +78,7 @@ fn test_deserialize_from_quantity_vec_real() {
             ---
             vec: [2.0 T, 3.0 T, 4.0 T]
             "};
-        let direct_de: VecWrapper = serde_yaml::from_str(direct_deserialization).unwrap();
+        let direct_de: VecWrapper = yaml_serde::from_str(direct_deserialization).unwrap();
         assert_eq!(direct_de.vec[0].get::<tesla>(), 2.0);
         assert_eq!(direct_de.vec[1].get::<tesla>(), 3.0);
         assert_eq!(direct_de.vec[2].get::<tesla>(), 4.0);
@@ -87,7 +87,7 @@ fn test_deserialize_from_quantity_vec_real() {
             ---
             vec: '[2.0, 3.0, 4.0] T'
             "};
-        let indirect_de_1: VecWrapper = serde_yaml::from_str(indirect_deserialization_1).unwrap();
+        let indirect_de_1: VecWrapper = yaml_serde::from_str(indirect_deserialization_1).unwrap();
         assert_eq!(indirect_de_1.vec[0].get::<tesla>(), 2.0);
         assert_eq!(indirect_de_1.vec[1].get::<tesla>(), 3.0);
         assert_eq!(indirect_de_1.vec[2].get::<tesla>(), 4.0);
@@ -96,7 +96,7 @@ fn test_deserialize_from_quantity_vec_real() {
             ---
             vec: '[2000.0, 3000.0, 4000.0] mT'
             "};
-        let indirect_de_2: VecWrapper = serde_yaml::from_str(indirect_deserialization_2).unwrap();
+        let indirect_de_2: VecWrapper = yaml_serde::from_str(indirect_deserialization_2).unwrap();
 
         // Slight rounding errors may occur due to the conversion from mT to T
         approx::assert_abs_diff_eq!(indirect_de_2.vec[0].get::<tesla>(), 2.0, epsilon = 1e-15);
@@ -116,7 +116,7 @@ fn test_deserialize_from_quantity_vec_real() {
         ---
         vec: [2.0 T, (3.0 + 1i) T, 4.0 T]
         "};
-        assert!(serde_yaml::from_str::<VecWrapper>(direct_deserialization).is_err());
+        assert!(yaml_serde::from_str::<VecWrapper>(direct_deserialization).is_err());
     }
 
     {
@@ -131,7 +131,7 @@ fn test_deserialize_from_quantity_vec_real() {
         ---
         vec: [2000.0 mOhm, 3000.0 mOhm, 4000.0 mOhm]
         "};
-        let var1: VecWrapper = serde_yaml::from_str(str).unwrap();
+        let var1: VecWrapper = yaml_serde::from_str(str).unwrap();
         approx::assert_abs_diff_eq!(var1.vec[0].get::<ohm>(), 2.0, epsilon = 1e-15);
         approx::assert_abs_diff_eq!(var1.vec[1].get::<ohm>(), 3.0, epsilon = 1e-15);
         approx::assert_abs_diff_eq!(var1.vec[2].get::<ohm>(), 4.0, epsilon = 1e-15);
@@ -140,7 +140,7 @@ fn test_deserialize_from_quantity_vec_real() {
         ---
         vec: [2 V/A, 3 V/A, 4000.0 mV/A]
         "};
-        let var2: VecWrapper = serde_yaml::from_str(str).unwrap();
+        let var2: VecWrapper = yaml_serde::from_str(str).unwrap();
         approx::assert_abs_diff_eq!(var2.vec[0].get::<ohm>(), 2.0, epsilon = 1e-15);
         approx::assert_abs_diff_eq!(var2.vec[1].get::<ohm>(), 3.0, epsilon = 1e-15);
         approx::assert_abs_diff_eq!(var2.vec[2].get::<ohm>(), 4.0, epsilon = 1e-15);
@@ -149,7 +149,7 @@ fn test_deserialize_from_quantity_vec_real() {
         ---
         vec: '[2000, 3000, 4000] mV/A'
         "};
-        let var3: VecWrapper = serde_yaml::from_str(str).unwrap();
+        let var3: VecWrapper = yaml_serde::from_str(str).unwrap();
         approx::assert_abs_diff_eq!(var3.vec[0].get::<ohm>(), 2.0, epsilon = 1e-15);
         approx::assert_abs_diff_eq!(var3.vec[1].get::<ohm>(), 3.0, epsilon = 1e-15);
         approx::assert_abs_diff_eq!(var3.vec[2].get::<ohm>(), 4.0, epsilon = 1e-15);
@@ -158,7 +158,7 @@ fn test_deserialize_from_quantity_vec_real() {
         ---
         vec: '[2 V, 3 V, 4 V] 1/A'
         "};
-        let var4: VecWrapper = serde_yaml::from_str(str).unwrap();
+        let var4: VecWrapper = yaml_serde::from_str(str).unwrap();
         approx::assert_abs_diff_eq!(var4.vec[0].get::<ohm>(), 2.0, epsilon = 1e-15);
         approx::assert_abs_diff_eq!(var4.vec[1].get::<ohm>(), 3.0, epsilon = 1e-15);
         approx::assert_abs_diff_eq!(var4.vec[2].get::<ohm>(), 4.0, epsilon = 1e-15);
@@ -167,7 +167,7 @@ fn test_deserialize_from_quantity_vec_real() {
         ---
         vec: '[2 / A, 3 / A, 4 / A] V'
         "};
-        let var5: VecWrapper = serde_yaml::from_str(str).unwrap();
+        let var5: VecWrapper = yaml_serde::from_str(str).unwrap();
         approx::assert_abs_diff_eq!(var5.vec[0].get::<ohm>(), 2.0, epsilon = 1e-15);
         approx::assert_abs_diff_eq!(var5.vec[1].get::<ohm>(), 3.0, epsilon = 1e-15);
         approx::assert_abs_diff_eq!(var5.vec[2].get::<ohm>(), 4.0, epsilon = 1e-15);
@@ -187,7 +187,7 @@ fn test_deserialize_from_quantity_vec_complex() {
             ---
             vec: [2.0 T, (3.0 + 1i) T, 4.0 T]
             "};
-        let direct_de: VecWrapper = serde_yaml::from_str(direct_deserialization).unwrap();
+        let direct_de: VecWrapper = yaml_serde::from_str(direct_deserialization).unwrap();
         assert_eq!(direct_de.vec[0].value.re, 2.0);
         assert_eq!(direct_de.vec[0].value.im, 0.0);
         assert_eq!(direct_de.vec[1].value.re, 3.0);
@@ -210,7 +210,7 @@ fn test_deserialize_from_str_vec_unit_mismatch() {
     ---
     vec: '[2.0, 3.0, 4.0] kg'
     "};
-    assert!(serde_yaml::from_str::<VecWrapper>(vec).is_err());
+    assert!(yaml_serde::from_str::<VecWrapper>(vec).is_err());
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
@@ -226,7 +226,7 @@ fn test_deserialize_electrical_resistance() {
             ---
             quantity: 1/4 V/mA
             "};
-        let val: ElectricalResistanceWrapper = serde_yaml::from_str(string).unwrap();
+        let val: ElectricalResistanceWrapper = yaml_serde::from_str(string).unwrap();
         approx::assert_abs_diff_eq!(val.quantity.get::<ohm>(), 250.0, epsilon = 1e-9);
     }
     {
@@ -234,7 +234,7 @@ fn test_deserialize_electrical_resistance() {
             ---
             quantity: PI uV/mA
             "};
-        let val: ElectricalResistanceWrapper = serde_yaml::from_str(string).unwrap();
+        let val: ElectricalResistanceWrapper = yaml_serde::from_str(string).unwrap();
         assert_eq!(val.quantity.get::<ohm>(), PI * 1e-3);
     }
     {
@@ -242,7 +242,7 @@ fn test_deserialize_electrical_resistance() {
             ---
             quantity: PI µV/mA
             "};
-        let val: ElectricalResistanceWrapper = serde_yaml::from_str(string).unwrap();
+        let val: ElectricalResistanceWrapper = yaml_serde::from_str(string).unwrap();
         assert_eq!(val.quantity.get::<ohm>(), PI * 1e-3);
     }
 }
@@ -259,7 +259,7 @@ fn test_floating_point() {
             ---
             val: 2.0
             "};
-    let wrapper: AngleWrapper = serde_yaml::from_str(data).unwrap();
+    let wrapper: AngleWrapper = yaml_serde::from_str(data).unwrap();
     approx::assert_abs_diff_eq!(wrapper.val, 2.0, epsilon = 1e-15);
 }
 
@@ -269,63 +269,63 @@ fn test_pi_conversion() {
             ---
             val: 2*pi
             "};
-    let wrapper: AngleWrapper = serde_yaml::from_str(data).unwrap();
+    let wrapper: AngleWrapper = yaml_serde::from_str(data).unwrap();
     approx::assert_abs_diff_eq!(wrapper.val, TAU, epsilon = 1e-15);
 
     let data = indoc! {"
             ---
             val: 2.0*pi
             "};
-    let wrapper: AngleWrapper = serde_yaml::from_str(data).unwrap();
+    let wrapper: AngleWrapper = yaml_serde::from_str(data).unwrap();
     approx::assert_abs_diff_eq!(wrapper.val, TAU, epsilon = 1e-15);
 
     let data = indoc! {"
             ---
             val: 2.0*pi rad
             "};
-    let wrapper: AngleWrapper = serde_yaml::from_str(data).unwrap();
+    let wrapper: AngleWrapper = yaml_serde::from_str(data).unwrap();
     approx::assert_abs_diff_eq!(wrapper.val, TAU, epsilon = 1e-15);
 
     let data = indoc! {"
             ---
             val: -2.0*pi
             "};
-    let wrapper: AngleWrapper = serde_yaml::from_str(data).unwrap();
+    let wrapper: AngleWrapper = yaml_serde::from_str(data).unwrap();
     approx::assert_abs_diff_eq!(wrapper.val, -TAU, epsilon = 1e-15);
 
     let data = indoc! {"
             ---
             val: -2.0*pi
             "};
-    let wrapper: AngleWrapper = serde_yaml::from_str(data).unwrap();
+    let wrapper: AngleWrapper = yaml_serde::from_str(data).unwrap();
     approx::assert_abs_diff_eq!(wrapper.val, -TAU, epsilon = 1e-15);
 
     let data = indoc! {"
             ---
             val: -2.0 *pi
             "};
-    let wrapper: AngleWrapper = serde_yaml::from_str(data).unwrap();
+    let wrapper: AngleWrapper = yaml_serde::from_str(data).unwrap();
     approx::assert_abs_diff_eq!(wrapper.val, -TAU, epsilon = 1e-15);
 
     let data = indoc! {"
             ---
             val: -2.0pi
             "};
-    let wrapper: AngleWrapper = serde_yaml::from_str(data).unwrap();
+    let wrapper: AngleWrapper = yaml_serde::from_str(data).unwrap();
     approx::assert_abs_diff_eq!(wrapper.val, -TAU, epsilon = 1e-15);
 
     let data = indoc! {"
             ---
             val: -2.0π
             "};
-    let wrapper: AngleWrapper = serde_yaml::from_str(data).unwrap();
+    let wrapper: AngleWrapper = yaml_serde::from_str(data).unwrap();
     approx::assert_abs_diff_eq!(wrapper.val, -TAU, epsilon = 1e-15);
 
     let data = indoc! {"
             ---
             val: -2.0π rad
             "};
-    let wrapper: AngleWrapper = serde_yaml::from_str(data).unwrap();
+    let wrapper: AngleWrapper = yaml_serde::from_str(data).unwrap();
     approx::assert_abs_diff_eq!(wrapper.val, -TAU, epsilon = 1e-15);
 }
 
@@ -335,35 +335,35 @@ fn test_angle_in_degree() {
             ---
             val: 90deg
             "};
-    let wrapper: AngleWrapper = serde_yaml::from_str(data).unwrap();
+    let wrapper: AngleWrapper = yaml_serde::from_str(data).unwrap();
     approx::assert_abs_diff_eq!(wrapper.val, FRAC_PI_2, epsilon = 1e-15);
 
     let data = indoc! {"
             ---
             val: 90 deg
             "};
-    let wrapper: AngleWrapper = serde_yaml::from_str(data).unwrap();
+    let wrapper: AngleWrapper = yaml_serde::from_str(data).unwrap();
     approx::assert_abs_diff_eq!(wrapper.val, FRAC_PI_2, epsilon = 1e-15);
 
     let data = indoc! {"
             ---
             val: 90.0deg
             "};
-    let wrapper: AngleWrapper = serde_yaml::from_str(data).unwrap();
+    let wrapper: AngleWrapper = yaml_serde::from_str(data).unwrap();
     approx::assert_abs_diff_eq!(wrapper.val, FRAC_PI_2, epsilon = 1e-15);
 
     let data = indoc! {"
             ---
             val: 90.0 deg
             "};
-    let wrapper: AngleWrapper = serde_yaml::from_str(data).unwrap();
+    let wrapper: AngleWrapper = yaml_serde::from_str(data).unwrap();
     approx::assert_abs_diff_eq!(wrapper.val, FRAC_PI_2, epsilon = 1e-15);
 
     let data = indoc! {"
             ---
             val: -90.0deg
             "};
-    let wrapper: AngleWrapper = serde_yaml::from_str(data).unwrap();
+    let wrapper: AngleWrapper = yaml_serde::from_str(data).unwrap();
     approx::assert_abs_diff_eq!(wrapper.val, -FRAC_PI_2, epsilon = 1e-15);
 }
 
@@ -373,14 +373,14 @@ fn test_angle_in_rad() {
             ---
             val: 1rad
             "};
-    let wrapper: AngleWrapper = serde_yaml::from_str(data).unwrap();
+    let wrapper: AngleWrapper = yaml_serde::from_str(data).unwrap();
     approx::assert_abs_diff_eq!(wrapper.val, 1.0, epsilon = 1e-15);
 
     let data = indoc! {"
             ---
             val: -1.0rad
             "};
-    let wrapper: AngleWrapper = serde_yaml::from_str(data).unwrap();
+    let wrapper: AngleWrapper = yaml_serde::from_str(data).unwrap();
     approx::assert_abs_diff_eq!(wrapper.val, -1.0, epsilon = 1e-15);
 }
 
@@ -396,6 +396,6 @@ fn test_deserialize_torque() {
         ---
         quantity: 1 mNm
         "};
-    let torque: TorqueWrapper = serde_yaml::from_str(torque).unwrap();
+    let torque: TorqueWrapper = yaml_serde::from_str(torque).unwrap();
     assert_eq!(torque.quantity.get::<newton_meter>(), 0.001);
 }

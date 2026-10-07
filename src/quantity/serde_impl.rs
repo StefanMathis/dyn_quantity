@@ -196,7 +196,7 @@ angle: 1.0
 opt_angle: 2.0
 
 "};
-let actual = serde_yaml::to_string(&quantities).expect("serialization succeeds");
+let actual = yaml_serde::to_string(&quantities).expect("serialization succeeds");
 assert_eq!(expected, actual);
 
 // With units
@@ -208,7 +208,7 @@ angle: 1 rad
 opt_angle: 2 rad
 
 "};
-let actual = serialize_with_units(||{serde_yaml::to_string(&quantities)}).expect("serialization succeeds");
+let actual = serialize_with_units(||{yaml_serde::to_string(&quantities)}).expect("serialization succeeds");
 assert_eq!(expected, actual);
 ```
  */
@@ -340,7 +340,7 @@ let ser = indoc! {"
 ---
 length: 1200 mm
 "};
-let wrapper: LengthWrapper = serde_yaml::from_str(&ser).unwrap();
+let wrapper: LengthWrapper = yaml_serde::from_str(&ser).unwrap();
 assert_eq!(wrapper.length.get::<meter>(), 1.2);
 ```
  */
@@ -377,14 +377,14 @@ let ser = indoc! {"
 ---
 opt_length: 1200 mm
 "};
-let wrapper: OptLengthWrapper = serde_yaml::from_str(&ser).unwrap();
+let wrapper: OptLengthWrapper = yaml_serde::from_str(&ser).unwrap();
 assert_eq!(wrapper.opt_length.unwrap().get::<meter>(), 1.2);
 
 let ser = indoc! {"
 ---
 opt_length:
 "};
-let wrapper: OptLengthWrapper = serde_yaml::from_str(&ser).unwrap();
+let wrapper: OptLengthWrapper = yaml_serde::from_str(&ser).unwrap();
 assert!(wrapper.opt_length.is_none());
 ```
  */
@@ -438,7 +438,7 @@ let ser = indoc! {"
 ---
 angle: 360 / 2 degree
 "};
-let wrapper: AngleWrapper = serde_yaml::from_str(&ser).unwrap();
+let wrapper: AngleWrapper = yaml_serde::from_str(&ser).unwrap();
 assert_eq!(wrapper.angle, PI);
 ```
  */
@@ -472,14 +472,14 @@ let ser = indoc! {"
 ---
 opt_angle: 2 rad
 "};
-let wrapper: OptAngleWrapper = serde_yaml::from_str(&ser).unwrap();
+let wrapper: OptAngleWrapper = yaml_serde::from_str(&ser).unwrap();
 assert_eq!(wrapper.opt_angle.unwrap(), 2.0);
 
 let ser = indoc! {"
 ---
 opt_angle:
 "};
-let wrapper: OptAngleWrapper = serde_yaml::from_str(&ser).unwrap();
+let wrapper: OptAngleWrapper = yaml_serde::from_str(&ser).unwrap();
 assert!(wrapper.opt_angle.is_none());
 ```
  */
@@ -529,7 +529,7 @@ let ser = indoc! {"
 ---
 vec: [1 m, 2 mm, 3 km]
 "};
-let wrapper: VecWrapper = serde_yaml::from_str(&ser).unwrap();
+let wrapper: VecWrapper = yaml_serde::from_str(&ser).unwrap();
 assert_eq!(wrapper.vec[0].get::<meter>(), 1.0);
 assert_eq!(wrapper.vec[1].get::<meter>(), 0.002);
 assert_eq!(wrapper.vec[2].get::<meter>(), 3000.0);
@@ -539,7 +539,7 @@ let ser = indoc! {"
 ---
 vec: '[1, 2e-3, 3e3] m'
 "};
-let wrapper: VecWrapper = serde_yaml::from_str(&ser).unwrap();
+let wrapper: VecWrapper = yaml_serde::from_str(&ser).unwrap();
 assert_eq!(wrapper.vec[0].get::<meter>(), 1.0);
 assert_eq!(wrapper.vec[1].get::<meter>(), 0.002);
 assert_eq!(wrapper.vec[2].get::<meter>(), 3000.0);
@@ -579,7 +579,7 @@ let ser = indoc! {"
 ---
 vec: [1 m, 2 mm, 3 km]
 "};
-let wrapper: OptVecWrapper = serde_yaml::from_str(&ser).unwrap();
+let wrapper: OptVecWrapper = yaml_serde::from_str(&ser).unwrap();
 let vec = wrapper.vec.unwrap();
 assert_eq!(vec[0].get::<meter>(), 1.0);
 assert_eq!(vec[1].get::<meter>(), 0.002);
@@ -590,7 +590,7 @@ let ser = indoc! {"
 ---
 vec:
 "};
-let wrapper: OptVecWrapper = serde_yaml::from_str(&ser).unwrap();
+let wrapper: OptVecWrapper = yaml_serde::from_str(&ser).unwrap();
 assert!(wrapper.vec.is_none());
 ```
 */
@@ -797,7 +797,7 @@ mod tests {
     #[test]
     fn test_deserialize_number_or_string() {
         {
-            let value: NumberOrString<DynQuantity<f64>> = serde_yaml::from_str("1.0").unwrap();
+            let value: NumberOrString<DynQuantity<f64>> = yaml_serde::from_str("1.0").unwrap();
             match value {
                 NumberOrString::Number(value) => {
                     assert_eq!(value.value, 1.0);
@@ -806,7 +806,7 @@ mod tests {
             }
         }
         {
-            let value: NumberOrString<DynQuantity<f64>> = serde_yaml::from_str("1.0 A").unwrap();
+            let value: NumberOrString<DynQuantity<f64>> = yaml_serde::from_str("1.0 A").unwrap();
             match value {
                 NumberOrString::Number(value) => {
                     assert_eq!(value.value, 1.0);
@@ -817,7 +817,7 @@ mod tests {
         }
         {
             let value: NumberOrString<DynQuantity<Complex<f64>>> =
-                serde_yaml::from_str("1.0 A").unwrap();
+                yaml_serde::from_str("1.0 A").unwrap();
             match value {
                 NumberOrString::Number(value) => {
                     assert_eq!(value.value.re, 1.0);

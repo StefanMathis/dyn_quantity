@@ -48,7 +48,7 @@ fn test_serialize() {
             mol: 0
             candela: 0
         "};
-    let actual = serde_yaml::to_string(&quantities).expect("serialization succeeds");
+    let actual = yaml_serde::to_string(&quantities).expect("serialization succeeds");
     assert_eq!(expected, actual);
 
     // With units
@@ -57,7 +57,7 @@ fn test_serialize() {
         quantity: 0.001 s^-3 m^2 kg A^-2
         opt_quantity: 1000 s^-3 m^2 kg A^-1
         "};
-    let actual = serialize_with_units(|| serde_yaml::to_string(&quantities))
+    let actual = serialize_with_units(|| yaml_serde::to_string(&quantities))
         .expect("serialization succeeds");
     assert_eq!(expected, actual);
 }
