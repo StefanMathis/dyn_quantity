@@ -88,9 +88,7 @@ pub trait F64RealOrComplex:
      */
     fn set_im_f64(&mut self, value: f64) -> ();
 
-    /**
-    Calcute the `n`th root of `self`.
-     */
+    /// Returns the `n`th root of `self`.
     fn nth_root(self, n: i32) -> Self;
 }
 
@@ -425,13 +423,19 @@ impl<V: F64RealOrComplex> DynQuantity<V> {
         return self;
     }
 
-    /**
-    Tries to calculate the `n`th root of self.
-     */
+    /// Tries to calculate the `n`th root of self.
     pub fn try_nthroot(mut self, n: i8) -> Result<Self, RootError> {
         self.unit = self.unit.try_nthroot(n)?;
         self.value = self.value.nth_root(n.into());
         return Ok(self);
+    }
+}
+
+impl DynQuantity<f64> {
+    /// Returns the absolute value of `self`.
+    pub fn abs(mut self) -> Self {
+        self.value = self.value.abs();
+        return self;
     }
 }
 
