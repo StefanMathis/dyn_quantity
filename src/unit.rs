@@ -59,7 +59,7 @@ representation and from a [`PredefUnit`] variant:
 use dyn_quantity::Unit;
 
 // Direct deserialization
-let str = "---\nsecond: -3\nmeter: 2\nkilogram: 1\nampere: -1\nkelvin: 0\nmol: 0\ncandela: 0";
+let str = "second: -3\nmeter: 2\nkilogram: 1\nampere: -1\nkelvin: 0\nmol: 0\ncandela: 0";
 let unit_direct: Unit = yaml_serde::from_str(str).unwrap();
 
 // Deserialization from PredefUnit

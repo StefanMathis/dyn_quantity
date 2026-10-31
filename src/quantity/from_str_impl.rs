@@ -471,7 +471,8 @@ fn from_str_complexf64(s: &str) -> Result<DynQuantity<Complex<f64>>, ParseError>
             }
             Token::Pi(exponents) => {
                 adjust(&mut active_quantity, |quantity| {
-                    quantity.value *= PI.powi(exponents.unit) * 10f64.powi(exponents.exponent());
+                    quantity.value *=
+                        PI.powi(exponents.unit.into()) * 10f64.powi(exponents.exponent());
                 });
             }
             Token::LeftBracket => {
@@ -638,7 +639,7 @@ fn from_str_complexf64(s: &str) -> Result<DynQuantity<Complex<f64>>, ParseError>
                     quantity.unit.kelvin += exponents.unit;
                     // Special treatment of celsius: The value needs to be corrected by an offset of
                     // -273.15 to the power of the unit exponent
-                    quantity.value += (273.15f64).powi(exponents.unit);
+                    quantity.value += (273.15f64).powi(exponents.unit.into());
                     quantity.value *= 10f64.powi(exponents.exponent());
                 });
             }
@@ -719,14 +720,14 @@ fn from_str_complexf64(s: &str) -> Result<DynQuantity<Complex<f64>>, ParseError>
             Token::RotationsPerMinute(exponents) => {
                 adjust(&mut active_quantity, |quantity| {
                     quantity.unit.second -= exponents.unit;
-                    quantity.value *=
-                        (1.0f64 / 60.0f64).powi(exponents.unit) * 10f64.powi(exponents.exponent());
+                    quantity.value *= (1.0f64 / 60.0f64).powi(exponents.unit.into())
+                        * 10f64.powi(exponents.exponent());
                 });
             }
             Token::Degree(exponents) => {
                 adjust(&mut active_quantity, |quantity| {
                     quantity.value *=
-                        (PI / 180.0).powi(exponents.unit) * 10f64.powi(exponents.exponent());
+                        (PI / 180.0).powi(exponents.unit.into()) * 10f64.powi(exponents.exponent());
                 });
             }
             Token::Radians(exponents) => {

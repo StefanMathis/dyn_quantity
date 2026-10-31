@@ -420,7 +420,7 @@ impl<V: F64RealOrComplex> DynQuantity<V> {
     ```
      */
     pub fn powi(mut self, n: i8) -> Self {
-        self.value = self.value.powi(n);
+        self.value = self.value.powi(n.into());
         self.unit = self.unit.powi(n);
         return self;
     }
@@ -430,7 +430,7 @@ impl<V: F64RealOrComplex> DynQuantity<V> {
      */
     pub fn try_nthroot(mut self, n: i8) -> Result<Self, RootError> {
         self.unit = self.unit.try_nthroot(n)?;
-        self.value = self.value.nth_root(n);
+        self.value = self.value.nth_root(n.into());
         return Ok(self);
     }
 }

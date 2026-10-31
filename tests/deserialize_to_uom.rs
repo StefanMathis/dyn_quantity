@@ -46,12 +46,11 @@ fn test_deserialize_length() {
 fn test_dimension_mismatch() {
     use indoc::indoc;
     let second_val = indoc! {"
-        ---
         quantity: 1 kg
         "};
     let err: yaml_serde::Error = yaml_serde::from_str::<LengthWrapper>(second_val).unwrap_err();
     assert_eq!(
-        "expected s^0 m^1 kg^0 A^0 K^0 mol^0 cd^0, found s^0 m^0 kg^1 A^0 K^0 mol^0 cd^0 at line 2 column 9",
+        "expected s^0 m^1 kg^0 A^0 K^0 mol^0 cd^0, found s^0 m^0 kg^1 A^0 K^0 mol^0 cd^0",
         err.to_string()
     );
 }

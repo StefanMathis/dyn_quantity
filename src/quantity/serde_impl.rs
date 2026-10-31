@@ -189,24 +189,20 @@ let quantities = Quantities {
 
 // Without units (standard serialization)
 let expected = indoc! {"
----
 length: 0.001
 opt_length: 1000.0
 angle: 1.0
-opt_angle: 2.0
-
+opt_angle: 2.0\n
 "};
 let actual = yaml_serde::to_string(&quantities).expect("serialization succeeds");
 assert_eq!(expected, actual);
 
 // With units
 let expected = indoc! {"
----
 length: 0.001 m
 opt_length: 1000 m
 angle: 1 rad
-opt_angle: 2 rad
-
+opt_angle: 2 rad\n
 "};
 let actual = serialize_with_units(||{yaml_serde::to_string(&quantities)}).expect("serialization succeeds");
 assert_eq!(expected, actual);

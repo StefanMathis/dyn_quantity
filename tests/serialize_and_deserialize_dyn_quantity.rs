@@ -26,7 +26,6 @@ fn test_serialize() {
 
     // Without units (standard serialization)
     let expected = indoc::indoc! {"
-        ---
         quantity:
           value: 0.001
           unit:
@@ -53,7 +52,6 @@ fn test_serialize() {
 
     // With units
     let expected = indoc::indoc! {"
-        ---
         quantity: 0.001 s^-3 m^2 kg A^-2
         opt_quantity: 1000 s^-3 m^2 kg A^-1
         "};

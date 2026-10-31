@@ -34,7 +34,6 @@ fn test_deserialize_and_serialize() {
         let quantity: DynQuantity<f64> = yaml_serde::from_str("2 A*m").unwrap();
         let res = yaml_serde::to_string(&quantity).unwrap();
         let expected = indoc! {"
-        ---
         value: 2.0
         unit:
           second: 0
@@ -52,7 +51,7 @@ fn test_deserialize_and_serialize() {
         let res = yaml_serde::to_string(&quantity).unwrap();
         assert_eq!(
             &res,
-            "---\nvalue:\n  - 1.0\n  - 2.0\nunit:\n  second: 0\n  meter: 0\n  kilogram: 2\n  ampere: 0\n  kelvin: 0\n  mol: 0\n  candela: 0\n"
+            "value:\n- 1.0\n- 2.0\nunit:\n  second: 0\n  meter: 0\n  kilogram: 2\n  ampere: 0\n  kelvin: 0\n  mol: 0\n  candela: 0\n"
         );
     }
 }

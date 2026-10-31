@@ -45,7 +45,6 @@ fn test_serialize_with_units() {
 
         // Without units (standard serialization)
         let expected = indoc::indoc! {"
-        ---
         length: 0.001
         opt_length: 1000.0
         angle: 1.0
@@ -56,7 +55,6 @@ fn test_serialize_with_units() {
 
         // With units
         let expected = indoc::indoc! {"
-        ---
         length: 0.001 m
         opt_length: 1000 m
         angle: 1 rad
@@ -77,22 +75,20 @@ fn test_serialize_with_units() {
 
         // Without units (standard serialization)
         let expected = indoc::indoc! {"
-        ---
         length: 0.001
-        opt_length: ~
+        opt_length: null
         angle: 1.0
-        opt_angle: ~
+        opt_angle: null
         "};
         let actual = yaml_serde::to_string(&quantities).expect("serialization succeeds");
         assert_eq!(expected, actual);
 
         // With units
         let expected = indoc::indoc! {"
-        ---
         length: 0.001 m
-        opt_length: ~
+        opt_length: null
         angle: 1 rad
-        opt_angle: ~
+        opt_angle: null
         "};
         let actual = serialize_with_units(|| yaml_serde::to_string(&quantities))
             .expect("serialization succeeds");
@@ -156,7 +152,6 @@ fn test_complicated_units() {
         mass_density: MassDensity::new::<kilogram_per_cubic_meter>(8000.0),
     };
     let expected = indoc::indoc! {"
-    ---
     magnetic_flux_density: 0.5 s^-2 kg A^-1
     voltage: 0.002 s^-3 m^2 kg A^-1
     mass_density: 8000 m^-3 kg

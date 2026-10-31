@@ -82,7 +82,15 @@ to be enabled).
 
 While some operations such as multiplication, division and exponentiation are 
 infallible, addition and subtraction require the unit exponents of both involved
-[`DynQuantity`] structs to be identical. This is checked at runtime:
+[`DynQuantity`] structs to be identical. This is checked at runtime.
+
+The unit exponents are represented by `i8` and are therefore limited to
+the range -128..=127. Arithmetic operations on quantities can consequently
+overflow when combining their units. See the [`Unit`] documentation for
+details on the exponent representation and overflow behavior.
+
+The following snippet shows an example for both fallible and infallible
+arithmetic operations:
 
 ```rust
 use std::str::FromStr;
@@ -215,24 +223,20 @@ let quantities = Quantities {
 
 // Without units (standard serialization)
 let expected = indoc! {"
----
 length: 1000.0
 opt_magnetic_flux_density: 0.001
 angle: 1.0
-opt_angle: 2.0
-
+opt_angle: 2.0\n
 "};
 let actual = yaml_serde::to_string(&quantities).expect("serialization succeeds");
 assert_eq!(expected, actual);
 
 // With units
 let expected = indoc! {"
----
 length: 1000 m
 opt_magnetic_flux_density: 0.001 s^-2 kg A^-1
 angle: 1 rad
-opt_angle: 2 rad
-
+opt_angle: 2 rad\n
 "};
 let actual = serialize_with_units(||{yaml_serde::to_string(&quantities)}).expect("serialization succeeds");
 assert_eq!(expected, actual);
@@ -259,9 +263,8 @@ struct LengthWrapper {
 }
 
 let ser = indoc! {"
----
-length: 1200 mm
-"};
+length: 1200 mm"
+};
 let wrapper: LengthWrapper = yaml_serde::from_str(&ser).unwrap();
 assert_eq!(wrapper.length.get::<meter>(), 1.2);
 ```
