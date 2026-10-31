@@ -383,13 +383,13 @@ pub enum PredefUnit {
     /// SI base units representation: s^-2*m^2*kg*A^-2 (henry)
     Inductance,
     /// SI base units representation: s^3*m^-2*kg^-1*A^2 (siemens)
-    ElectricConductance,
+    ElectricalConductance,
     /// SI base units representation: s^-3*m^2*kg*A^-2 (ohm)
-    ElectricResistance,
+    ElectricalResistance,
     /// SI base units representation: s^3*m^-2*kg^-1*A^2 (siemens)
-    ElectricConductivity,
+    ElectricalConductivity,
     /// SI base units representation: s^-3*m^3*kg*A^-2 (ohm)
-    ElectricResistivity,
+    ElectricalResistivity,
 }
 
 impl From<PredefUnit> for Unit {
@@ -585,7 +585,7 @@ impl From<PredefUnit> for Unit {
                 mol: 0,
                 candela: 0,
             },
-            PredefUnit::ElectricConductance => Self {
+            PredefUnit::ElectricalConductance => Self {
                 second: 3,
                 meter: -2,
                 kilogram: -1,
@@ -594,7 +594,7 @@ impl From<PredefUnit> for Unit {
                 mol: 0,
                 candela: 0,
             },
-            PredefUnit::ElectricResistance => Self {
+            PredefUnit::ElectricalResistance => Self {
                 second: -3,
                 meter: 2,
                 kilogram: 1,
@@ -603,7 +603,7 @@ impl From<PredefUnit> for Unit {
                 mol: 0,
                 candela: 0,
             },
-            PredefUnit::ElectricConductivity => Self {
+            PredefUnit::ElectricalConductivity => Self {
                 second: 3,
                 meter: -3,
                 kilogram: -1,
@@ -612,7 +612,7 @@ impl From<PredefUnit> for Unit {
                 mol: 0,
                 candela: 0,
             },
-            PredefUnit::ElectricResistivity => Self {
+            PredefUnit::ElectricalResistivity => Self {
                 second: -3,
                 meter: 3,
                 kilogram: 1,
