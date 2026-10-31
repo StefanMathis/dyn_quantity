@@ -11,8 +11,7 @@
 [`uom_impl`]: crate::quantity::uom_impl
 [dyn_quantity_lexer]: dyn_quantity_lexer
 
-A lightweight (only one dependency with 18 SLoC) implementation of a 1d Akima
-spline with optional smooth extrapolation and derivative calculation.
+A crate for dealing with quantities where the units are only known at runtime.
 
  */
 #![doc = include_str!("../docs/main.md")]

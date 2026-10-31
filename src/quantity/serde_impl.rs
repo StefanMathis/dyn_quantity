@@ -54,7 +54,7 @@ where
 {
     /**
     Native representation of [`DynQuantity`] (via an alias struct in order
-    to avoid infinite recursion)-
+    to avoid infinite recursion).
      */
     Quantity(QuantityAlias<V>),
     /**

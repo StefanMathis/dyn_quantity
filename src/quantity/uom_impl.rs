@@ -56,13 +56,13 @@ where
 {
     fn unit_from_type() -> Unit {
         return Unit {
-            second: T::to_i32(),
-            meter: L::to_i32(),
-            kilogram: M::to_i32(),
-            ampere: I::to_i32(),
-            kelvin: Th::to_i32(),
-            mol: N::to_i32(),
-            candela: J::to_i32(),
+            second: T::to_i8(),
+            meter: L::to_i8(),
+            kilogram: M::to_i8(),
+            ampere: I::to_i8(),
+            kelvin: Th::to_i8(),
+            mol: N::to_i8(),
+            candela: J::to_i8(),
         };
     }
 }
@@ -86,13 +86,13 @@ where
         // Check dimensional correctness (compare runtime to compile-time unit
         // exponents)
         let expected = Unit {
-            second: T::to_i32(),
-            meter: L::to_i32(),
-            kilogram: M::to_i32(),
-            ampere: I::to_i32(),
-            kelvin: Th::to_i32(),
-            mol: N::to_i32(),
-            candela: J::to_i32(),
+            second: T::to_i8(),
+            meter: L::to_i8(),
+            kilogram: M::to_i8(),
+            ampere: I::to_i8(),
+            kelvin: Th::to_i8(),
+            mol: N::to_i8(),
+            candela: J::to_i8(),
         };
         if expected != quantity.unit {
             return Err(ConversionError::UnitMismatch {
@@ -147,13 +147,13 @@ where
         // Check dimensional correctness (compare runtime to compile-time unit
         // exponents)
         let expected = Unit {
-            second: T::to_i32(),
-            meter: L::to_i32(),
-            kilogram: M::to_i32(),
-            ampere: I::to_i32(),
-            kelvin: Th::to_i32(),
-            mol: N::to_i32(),
-            candela: J::to_i32(),
+            second: T::to_i8(),
+            meter: L::to_i8(),
+            kilogram: M::to_i8(),
+            ampere: I::to_i8(),
+            kelvin: Th::to_i8(),
+            mol: N::to_i8(),
+            candela: J::to_i8(),
         };
         if expected != quantity.unit {
             return Err(ConversionError::UnitMismatch {
@@ -214,13 +214,13 @@ where
         quantity: &uom::si::Quantity<uom::si::ISQ<L, M, T, I, Th, N, J, K>, uom::si::SI<f64>, f64>,
     ) -> Self {
         let exponents = Unit {
-            second: T::to_i32(),
-            meter: L::to_i32(),
-            kilogram: M::to_i32(),
-            ampere: I::to_i32(),
-            kelvin: Th::to_i32(),
-            mol: N::to_i32(),
-            candela: J::to_i32(),
+            second: T::to_i8(),
+            meter: L::to_i8(),
+            kilogram: M::to_i8(),
+            ampere: I::to_i8(),
+            kelvin: Th::to_i8(),
+            mol: N::to_i8(),
+            candela: J::to_i8(),
         };
         return DynQuantity::new(V::from_f64(quantity.value.clone()), exponents);
     }
@@ -257,13 +257,13 @@ where
         let value = V::try_from_complexf64(quantity.value)?;
 
         let exponents = Unit {
-            second: T::to_i32(),
-            meter: L::to_i32(),
-            kilogram: M::to_i32(),
-            ampere: I::to_i32(),
-            kelvin: Th::to_i32(),
-            mol: N::to_i32(),
-            candela: J::to_i32(),
+            second: T::to_i8(),
+            meter: L::to_i8(),
+            kilogram: M::to_i8(),
+            ampere: I::to_i8(),
+            kelvin: Th::to_i8(),
+            mol: N::to_i8(),
+            candela: J::to_i8(),
         };
         return Ok(DynQuantity::new(value, exponents));
     }

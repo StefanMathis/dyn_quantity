@@ -191,6 +191,17 @@ converted into a
 [`TryFrom`]. In combination with the aforementioned parsing capabilities, this
 allows fallible parsing of strings to statically-typed physical quantities.
 
+# Unit exponent range
+
+The [`Unit`] exponents are represented by [`i8`], limiting their range to
+-128..=127. Consequently, arithmetic operations on quantities can overflow
+when combining their units, even if the mathematically correct result would
+have exponents within this range. The overflow behavior follows the
+semantics of primitive [`i8`] arithmetic: operations panic when overflow
+checks are enabled and wrap when they are disabled.
+
+See the [`Unit`] documentation for further details.
+
 # Serialization and deserialization
 
 If the `serde` feature is enabled, this struct can be serialized and
@@ -408,7 +419,7 @@ impl<V: F64RealOrComplex> DynQuantity<V> {
     assert_eq!(result.unit.ampere, 6);
     ```
      */
-    pub fn powi(mut self, n: i32) -> Self {
+    pub fn powi(mut self, n: i8) -> Self {
         self.value = self.value.powi(n);
         self.unit = self.unit.powi(n);
         return self;
@@ -417,7 +428,7 @@ impl<V: F64RealOrComplex> DynQuantity<V> {
     /**
     Tries to calculate the `n`th root of self.
      */
-    pub fn try_nthroot(mut self, n: i32) -> Result<Self, RootError> {
+    pub fn try_nthroot(mut self, n: i8) -> Result<Self, RootError> {
         self.unit = self.unit.try_nthroot(n)?;
         self.value = self.value.nth_root(n);
         return Ok(self);

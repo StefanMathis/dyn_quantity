@@ -1,6 +1,6 @@
 [package]
 name = "dyn_quantity"
-version = "0.5.14"
+version = "0.6.0"
 edition = "2024"
 description = "Representing physical quantities dynamically (i.e. via values, not via the type system)"
 readme = "README.md"
@@ -12,7 +12,7 @@ resolver = "2"
 uom = {version = "0.36", default-features = false, features = ["f64", "complex64", "si", "std", "serde"], optional = true}
 dyn_quantity_lexer = {version = "0.1", optional = true}
 serde = {version = "1", features = ["derive", "rc"], optional = true }
-deserialize_untagged_verbose_error = {version = "0.1.5", optional = true}
+deserialize_untagged_verbose_error = {version = "0.1.8", optional = true}
 num = {version = "0.4"}
 
 [features]

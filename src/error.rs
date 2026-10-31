@@ -38,7 +38,7 @@ is not divisible by `n`.
 #[derive(Default, Debug, Clone, PartialEq)]
 pub struct RootError {
     /// Root index which lead to the error.
-    pub n: i32,
+    pub n: i8,
     /// Exponents for which the `n`th root could not be calculated.
     pub unit: Unit,
 }

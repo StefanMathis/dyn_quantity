@@ -12,13 +12,13 @@ use std::num::{ParseFloatError, ParseIntError};
 
 #[derive(Debug, PartialEq)]
 pub struct Exponents {
-    pub unit: i32,
+    pub unit: i8,
     pub prefix: i32,
 }
 
 impl Exponents {
     pub fn exponent(&self) -> i32 {
-        return self.unit * self.prefix;
+        return i32::from(self.unit) * self.prefix;
     }
 }
 
@@ -65,7 +65,7 @@ pub enum Token {
 
     #[token(")", |lex| parse_exponent(lex))]
     #[regex(r"\)\^-?\d+", |lex| parse_exponent(lex))]
-    RightBracket(i32),
+    RightBracket(i8),
 
     #[token("+")]
     Add,
@@ -265,7 +265,7 @@ fn parse_exponents_and_prefix(lex: &mut Lexer<Token>, unit_chars: &str) -> Optio
     });
 }
 
-fn parse_exponent(lex: &mut Lexer<Token>) -> Option<i32> {
+fn parse_exponent(lex: &mut Lexer<Token>) -> Option<i8> {
     let slice = lex.slice();
 
     // Find the position of the exponent marker '^'. If it cannot be found, the unit exponent is automatically set to 1

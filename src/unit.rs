@@ -13,12 +13,38 @@ use serde::{Deserialize, Serialize};
 use crate::error::RootError;
 
 /**
-Struct representing a unit of measurement in the SI system via the exponents of
-the base units. The unit is purely defined by the values of its fields, meaning
-that it can change at runtime. The struct implements basic arithmetic functions
-such as multiplication and division (via the [`Mul`], [`MulAssign`], [`Div`],
+Struct representing a unit of measurement in the SI system via the exponents
+of the base units.
+
+The unit is purely defined by the values of its fields, meaning that it can
+change at runtime. The struct implements basic arithmetic functions such as
+multiplication and division (via the [`Mul`], [`MulAssign`], [`Div`],
 [`DivAssign`] traits), exponentiation ([`Unit::powi`]) and a fallible version
 of root calculation ([`Unit::try_nthroot`]).
+
+# Exponent range and overflow
+
+The exponents are represented by [`i8`], limiting their range to -128..=127.
+Consequently, the order of operations can matter: intermediate results may
+overflow even if the mathematically correct final result would be within the
+representable range. This is particularly relevant when combining
+exponentiation and root calculations, where an overflowed intermediate
+exponent can affect subsequent divisibility checks.
+
+For example, the following expression overflows during evaluation, even though
+its mathematically correct result has an exponent representable by [i8]:
+
+`unit.powi(100) * unit.powi(100) / unit.powi(100)`
+
+We deliberately use [`i8`] rather than a wider integer type because physical
+quantities rarely require large dimensional exponents. The smaller
+representation reduces the memory footprint of [`Unit`] and, consequently,
+of [`DynQuantity`](crate::DynQuantity), which is important because quantities
+are frequently created, copied and evaluated.
+
+Arithmetic follows the overflow semantics of primitive `i8` operations:
+overflow panics when overflow checks are enabled and wraps when they are
+disabled (typically in optimized builds).
 
 # Serialization and deserialization
 
@@ -46,24 +72,24 @@ assert_eq!(unit_predef, unit_direct);
 #[repr(C)]
 pub struct Unit {
     /// Exponent for the SI base unit of time.
-    pub second: i32,
+    pub second: i8,
     /// Exponent for the SI base unit of length.
-    pub meter: i32,
+    pub meter: i8,
     /// Exponent for the SI base unit of mass.
-    pub kilogram: i32,
+    pub kilogram: i8,
     /// Exponent for the SI base unit of electrical current.
-    pub ampere: i32,
+    pub ampere: i8,
     /// Exponent for the SI base unit of temperature.
-    pub kelvin: i32,
+    pub kelvin: i8,
     /// Exponent for the SI base unit of amount of substance.
-    pub mol: i32,
+    pub mol: i8,
     /// Exponent for the SI base unit of luminous intensity
-    pub candela: i32,
+    pub candela: i8,
 }
 
-impl From<[i32; 7]> for Unit {
+impl From<[i8; 7]> for Unit {
     /**
-    Converts an array of seven `i32` values into `Unit`.
+    Converts an array of seven `i8` values into `Unit`.
 
     The individual array elements are interpreted as follows:
     - `array[0]`: Exponent of second
@@ -74,7 +100,7 @@ impl From<[i32; 7]> for Unit {
     - `array[5]`: Exponent of mol
     - `array[6]`: Exponent of candela
      */
-    fn from(array: [i32; 7]) -> Self {
+    fn from(array: [i8; 7]) -> Self {
         return Unit {
             second: array[0],
             meter: array[1],
@@ -87,7 +113,7 @@ impl From<[i32; 7]> for Unit {
     }
 }
 
-impl From<Unit> for [i32; 7] {
+impl From<Unit> for [i8; 7] {
     /**
     Converts an `Unit` into an array of seven `i32`.
 
@@ -117,16 +143,19 @@ impl Unit {
     /**
     Raises `self` to an integer power.
 
+    As explained in the [`Unit`] documentation, one needs to be careful about
+    overflow when raising units to a power.
+
     # Examples
     ```
     use dyn_quantity::Unit;
 
     let exponents = Unit::from([0, 1, 0, 2, 0, -2, 0]);
-    let array: [i32; 7] = exponents.powi(2).into();
+    let array: [i8; 7] = exponents.powi(2).into();
     assert_eq!(array, [0, 2, 0, 4, 0, -4, 0]);
     ```
      */
-    pub fn powi(mut self, n: i32) -> Self {
+    pub fn powi(mut self, n: i8) -> Self {
         self.second *= n;
         self.meter *= n;
         self.kilogram *= n;
@@ -148,15 +177,15 @@ impl Unit {
     let unit = Unit::from([0, 2, 0, 2, 0, -4, 0]);
 
     // It is possible to calculate the square root:
-    let array: [i32; 7] = unit.clone().try_nthroot(2).unwrap().into();
+    let array: [i8; 7] = unit.clone().try_nthroot(2).unwrap().into();
     assert_eq!(array, [0, 1, 0, 1, 0, -2, 0]);
 
     // But not the cubic root (not all exponents are divisible by 3):
     assert!(unit.try_nthroot(3).is_err());
     ```
      */
-    pub fn try_nthroot(mut self, n: i32) -> Result<Self, RootError> {
-        fn try_nthroot_inner(unit: &Unit, exp: i32, n: i32) -> Result<i32, RootError> {
+    pub fn try_nthroot(mut self, n: i8) -> Result<Self, RootError> {
+        fn try_nthroot_inner(unit: &Unit, exp: i8, n: i8) -> Result<i8, RootError> {
             if exp % n == 0 {
                 return Ok(exp / n);
             } else {
@@ -627,13 +656,13 @@ mod serde_impl {
 
     #[derive(serde::Deserialize)]
     struct UnitAlias {
-        second: i32,
-        meter: i32,
-        kilogram: i32,
-        ampere: i32,
-        kelvin: i32,
-        mol: i32,
-        candela: i32,
+        second: i8,
+        meter: i8,
+        kilogram: i8,
+        ampere: i8,
+        kelvin: i8,
+        mol: i8,
+        candela: i8,
     }
 
     /**
